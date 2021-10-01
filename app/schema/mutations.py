@@ -10,11 +10,6 @@ from app.models import ChatMessage, ChatRoom, User
 from app.schema.subscriptions import OnNewChatMessage
 
 class Login(graphene.Mutation, name="LoginPayload"):  # type: ignore
-    """Login mutation.
-    Login implementation, following the Channels guide:
-    https://channels.readthedocs.io/en/latest/topics/authentication.html
-    """
-
     ok = Boolean(required=True)
 
     class Arguments:
@@ -31,6 +26,18 @@ class Login(graphene.Mutation, name="LoginPayload"):  # type: ignore
         async_to_sync(login)(info.context.scope, user)
         info.context.session.save()
         return Login(ok=True)
+
+class Logout(graphene.Mutation):
+    ok = Boolean(required=True)
+
+    def mutate(self, info):
+        user: User = info.context.user
+        if user.is_authenticated:
+            info.context.scope["session"] = info.context.session
+            async_to_sync(logout)(info.context.scope)
+            info.context.session.save()
+            return Logout(ok=True)
+        return Logout(ok=False)
 
 
 class SendChatMessage(graphene.Mutation, name="SendChatMessagePayload"):
@@ -61,4 +68,4 @@ class SendChatMessage(graphene.Mutation, name="SendChatMessagePayload"):
 class Mutation(ObjectType):
     send_chat_message = SendChatMessage.Field()
     login = Login.Field()
-
+    logout = Logout.Field()
