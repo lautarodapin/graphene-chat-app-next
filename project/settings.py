@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'channels',
     'graphene_django',
     'app.apps.AppConfig',
@@ -50,12 +51,16 @@ INSTALLED_APPS = [
 GRAPHENE = {
     "SCHEMA": "project.schema.schema"
 }
-
+GRAPHQL_PUBLIC_FIELDS = ['user', 'login', 'logout', 'resetPassword', 'setPassword']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

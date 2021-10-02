@@ -25,9 +25,9 @@ class RegisterMutation(graphene.Mutation):
     @staticmethod
     def mutate(self, info, username, password, password2):
         if password != password2:
-            raise ValidationError({'password': 'Passwords are not equal'})
+            raise ValidationError({"password": "Passwords are not equal"})
         if User.objects.filter(username__icontains=username).exists():
-            raise ValidationError({'username': 'Username already exists'})
+            raise ValidationError({"username": "Username already exists"})
         user = User.objects.create_user(username=username, password=password)
         LoginMutation.mutate(self, info, username, password)
         return RegisterMutation(ok=True, user=user)
@@ -45,7 +45,7 @@ class LoginMutation(graphene.Mutation):
     def mutate(self, info, username, password):
         user = authenticate(username=username, password=password)
         if user is None:
-            raise ValidationError({'__all__': 'User doesn\'t exists'})
+            raise ValidationError({"__all__": "User doesn\'t exists"})
         info.context.scope["session"] = info.context.session
         async_to_sync(login)(info.context.scope, user)
         info.context.session.save()
