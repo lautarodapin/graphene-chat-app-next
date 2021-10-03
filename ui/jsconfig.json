@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/graphql-documents/*": ["graphql-documents/*"]
+        }
+    }
+}

@@ -45,13 +45,25 @@ INSTALLED_APPS = [
     'graphene_django',
     'app.apps.AppConfig',
     'django_extensions',
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
 
 ]
 
 GRAPHENE = {
-    "SCHEMA": "project.schema.schema"
+    "SCHEMA": "project.schema.schema",
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
 }
-GRAPHQL_PUBLIC_FIELDS = ['user', 'login', 'logout', 'resetPassword', 'setPassword']
+
+GRAPHQL_JWT = dict(
+    JWT_SECRET_KEY=SECRET_KEY,
+)
+
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
@@ -60,7 +72,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

@@ -10,7 +10,8 @@ import Header from '../components/layout/header';
 import { Container } from '@mui/material';
 
 import { ApolloProvider } from "@apollo/client";
-import {client} from "../apollo-client";
+import { client } from "../apollo-client";
+import { UserProvider } from '../contexts/user';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -26,12 +27,14 @@ export default function MyApp(props) {
             </Head>
             <ApolloProvider client={client}>
                 <ThemeProvider theme={theme}>
-                    {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-                    <CssBaseline />
-                    <Header />
-                    <Container maxWidth='lg' style={{ marginTop: '20px' }}>
-                        <Component {...pageProps} />
-                    </Container>
+                    <UserProvider>
+                        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+                        <CssBaseline />
+                        <Header />
+                        <Container maxWidth='lg' style={{ marginTop: '20px' }}>
+                            <Component {...pageProps} />
+                        </Container>
+                    </UserProvider>
                 </ThemeProvider>
             </ApolloProvider>
         </CacheProvider>

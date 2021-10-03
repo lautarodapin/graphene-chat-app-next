@@ -5,13 +5,14 @@ from channels.auth import login, logout
 from asgiref.sync import async_to_sync
 from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import Int
+from django.contrib.auth import login as django_login, logout as django_logout
 
 from app.models import ChatMessage, ChatRoom, User
 from app.schema.subscriptions import OnNewChatMessage
 from django.forms import ValidationError
 
 from .types import UserType
-
+import graphql_jwt
 
 class RegisterMutation(graphene.Mutation):
     ok = Boolean(required=True)
@@ -30,6 +31,7 @@ class RegisterMutation(graphene.Mutation):
             raise ValidationError({"username": "Username already exists"})
         user = User.objects.create_user(username=username, password=password)
         LoginMutation.mutate(self, info, username, password)
+
         return RegisterMutation(ok=True, user=user)
 
 
@@ -48,7 +50,9 @@ class LoginMutation(graphene.Mutation):
             raise ValidationError({"__all__": "User doesn\'t exists"})
         info.context.scope["session"] = info.context.session
         async_to_sync(login)(info.context.scope, user)
+        django_login(info.context, user=user)
         info.context.session.save()
+
         return LoginMutation(ok=True, user=user)
 
 
@@ -61,6 +65,7 @@ class LogoutMutation(graphene.Mutation):
         if user.is_authenticated:
             info.context.scope["session"] = info.context.session
             async_to_sync(logout)(info.context.scope)
+            django_logout(info.context)
             info.context.session.save()
             return LogoutMutation(ok=True)
         return LogoutMutation(ok=False)
@@ -97,3 +102,8 @@ class Mutation(ObjectType):
     login = LoginMutation.Field()
     logout = LogoutMutation.Field()
     register = RegisterMutation.Field()
+
+
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
