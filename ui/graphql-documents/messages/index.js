@@ -35,3 +35,30 @@ export const SEND_CHAT_MESSAGE = gql`
         }
     }
 `
+
+
+export const ON_NEW_CHAT_MESSAGE = gql`
+    subscription OnNewChatMessage($chatRoom: String!) {
+        onNewChatMessage(chatRoom: $chatRoom) {
+            sender {
+                id
+                username
+                email
+            }
+            chatRoom {
+                id
+                chatName
+            }
+            message {
+                id
+                createdAt
+                user {
+                    id
+                    username
+                    email
+                }
+            }
+
+        }
+    }
+`
