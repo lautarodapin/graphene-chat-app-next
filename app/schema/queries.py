@@ -17,7 +17,7 @@ class Query(ObjectType):
         return 'world'
 
     def resolve_history(self, info, chat_room: str):
-        return ChatMessage.objects.filter(chat=chat_room)
+        return ChatMessage.objects.filter(chat=chat_room).order_by('created_at')
 
     def resolve_user(self, info):
         if info.context.user.is_authenticated:
