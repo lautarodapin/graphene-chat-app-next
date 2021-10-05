@@ -1,23 +1,34 @@
+from django.db.models.expressions import Value
 from graphene.types.objecttype import ObjectType
 from graphene import String, List, Field
 from graphene.types.structures import NonNull
 from app.models import ChatMessage, ChatRoom, User
 
-from app.schema.types import ChatMessageType, ChatRoomType, UserType
+from app.schema.types import (
+    ChatMessageType, ChatRoomType, FiltersInput, UserType,
+    ChatMessageListType
+)
 
 class Query(ObjectType):
     hello = String()
-    history = List(NonNull(ChatMessageType), chat_room=String())
+    history = Field(ChatMessageListType, chat_room=String(), filters=FiltersInput())
     user = Field(UserType)
     users = Field(NonNull(UserType))
     chat = Field(ChatRoomType, id=String(required=True))
-    chats = List(NonNull(ChatRoomType))
+    chats = List(NonNull(ChatRoomType),)
 
     def resolve_hello(self, info):
         return 'world'
 
-    def resolve_history(self, info, chat_room: str):
-        return ChatMessage.objects.filter(chat=chat_room).order_by('created_at')
+    def resolve_history(self, info, chat_room: str, filters):
+        queryset = (
+            ChatMessage.objects.filter(chat=chat_room)
+        )
+        return ChatMessageListType(
+            items=reversed(filters.paginate(queryset)),
+            count=filters.count,
+            has_more=filters.has_more,
+        )
 
     def resolve_user(self, info):
         if info.context.user.is_authenticated:

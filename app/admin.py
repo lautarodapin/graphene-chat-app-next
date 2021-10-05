@@ -4,3 +4,7 @@ from .models import ChatMessage, ChatRoom, User
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'message', 'chat', 'user', 'created_at']
