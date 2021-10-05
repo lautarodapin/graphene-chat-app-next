@@ -19,11 +19,22 @@ export const MESSAGE_FRAGMENT = gql`
     }
 `
 
-export const HISTORY = gql`
+export const HISTORY_FRAGMENT = gql`
     ${MESSAGE_FRAGMENT}
-    query History ($chatRoom: String!){
-        history(chatRoom: $chatRoom) {
+    fragment ChatMessageList on ChatMessageListType {
+        items {
             ...ChatMessage
+        }
+        count
+        hasMore
+    }
+`
+
+export const HISTORY = gql`
+    ${HISTORY_FRAGMENT}
+    query History ($chatRoom: String!, $filters: FiltersInput!){
+        history(chatRoom: $chatRoom, filters: $filters) {
+            ...ChatMessageList
         }
     }
 `
@@ -38,6 +49,7 @@ export const SEND_CHAT_MESSAGE = gql`
 
 
 export const ON_NEW_CHAT_MESSAGE = gql`
+    ${MESSAGE_FRAGMENT}
     subscription OnNewChatMessage($chatRoom: String!) {
         onNewChatMessage(chatRoom: $chatRoom) {
             sender {
@@ -50,13 +62,7 @@ export const ON_NEW_CHAT_MESSAGE = gql`
                 chatName
             }
             message {
-                id
-                createdAt
-                user {
-                    id
-                    username
-                    email
-                }
+                ...ChatMessage
             }
 
         }

@@ -61,7 +61,7 @@ import { ApolloClient, ApolloLink, HttpLink, InMemoryCache, split } from '@apoll
 
 const wsLinkwithoutAuth = () =>
   new WebSocketLink({
-    uri: WS_URL,
+    uri: 'ws://localhost:8000/graphql/',
     options: {
       reconnect: true,
     },

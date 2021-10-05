@@ -22,7 +22,7 @@ export default function MyApp(props) {
     return (
         <CacheProvider value={emotionCache}>
             <Head>
-                <title>MUI5 Nextjs</title>
+                <title>Chat app</title>
                 <meta name="viewport" content="initial-scale=1, width=device-width" />
             </Head>
             <ApolloProvider client={client}>

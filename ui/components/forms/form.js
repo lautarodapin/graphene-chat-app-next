@@ -2,10 +2,10 @@ import {Grid, GridProps, GridSpacing} from '@mui/material';
 import {Form as FormikForm, FormikFormProps} from 'formik';
 import {FC} from 'react';
 
-export const Form = ({children, autoComplete, spacing = 4}) => {
+export const Form = ({children, autoComplete, spacing = 4, ...other}) => {
     return (
         <FormikForm autoComplete={autoComplete}>
-            <Grid container={true} spacing={spacing}>
+            <Grid container={true} spacing={spacing} {...other}>
                 {children}
             </Grid>
         </FormikForm>

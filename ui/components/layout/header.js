@@ -19,7 +19,7 @@ const Header = () => {
                         maxWidth="lg"
                         sx={{ display: `flex`, justifyContent: `space-between` }}
                     >
-                        This is a header
+                        Chat app
                     </Container>
                     {user && (
                         <Link href="/users/logout">
