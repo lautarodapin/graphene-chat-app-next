@@ -37,7 +37,7 @@ const Login = () => {
                         
                         <FormErrors />
                         <TextInput label='Username' name='username' gridProps={{ xs: 12, md: 6 }} />
-                        <TextInput label='Password' name='password' gridProps={{ xs: 12, md: 6 }} />
+                        <TextInput label='Password' name='password' type='password' gridProps={{ xs: 12, md: 6 }} />
                         <Grid item={true} xs={12}>
                             <SubmitButton />
                         </Grid>

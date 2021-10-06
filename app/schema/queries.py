@@ -1,4 +1,5 @@
 from django.db.models.expressions import Value
+import graphene
 from graphene.types.objecttype import ObjectType
 from graphene import String, List, Field
 from graphene.types.structures import NonNull
@@ -11,16 +12,16 @@ from app.schema.types import (
 
 class Query(ObjectType):
     hello = String()
-    history = Field(ChatMessageListType, chat_room=String(), filters=FiltersInput())
+    history = Field(ChatMessageListType, chat_room=graphene.ID(required=True), filters=FiltersInput())
     user = Field(UserType)
     users = Field(NonNull(UserType))
-    chat = Field(ChatRoomType, id=String(required=True))
+    chat = Field(ChatRoomType, id=graphene.ID(required=True))
     chats = List(NonNull(ChatRoomType),)
 
     def resolve_hello(self, info):
         return 'world'
 
-    def resolve_history(self, info, chat_room: str, filters):
+    def resolve_history(self, info, chat_room, filters):
         queryset = (
             ChatMessage.objects.filter(chat=chat_room)
         )

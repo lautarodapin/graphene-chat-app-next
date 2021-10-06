@@ -24,7 +24,7 @@ class RegisterMutation(graphene.Mutation):
         password2 = String(required=True)
 
     @staticmethod
-    def mutate(self, info, username, password, password2):
+    def mutate(self , info, username, password, password2):
         if password != password2:
             raise ValidationError({"password": "Passwords are not equal"})
         if User.objects.filter(username__icontains=username).exists():
@@ -44,7 +44,7 @@ class LoginMutation(graphene.Mutation):
         password = String(required=True)
 
     @staticmethod
-    def mutate(self, info, username, password):
+    def mutate(self , info, username, password):
         user = authenticate(username=username, password=password)
         if user is None:
             raise ValidationError({"__all__": "User doesn\'t exists"})
@@ -60,7 +60,7 @@ class LogoutMutation(graphene.Mutation):
     ok = Boolean(required=True)
 
     @staticmethod
-    def mutate(self, info):
+    def mutate(self , info):
         user: User = info.context.user
         if user.is_authenticated:
             info.context.scope["session"] = info.context.session
@@ -71,15 +71,15 @@ class LogoutMutation(graphene.Mutation):
         return LogoutMutation(ok=False)
 
 
-class SendChatMessageMutation(graphene.Mutation, name="SendChatMessagePayload"):
+class SendChatMessageMutation(graphene.Mutation):
     ok = Boolean()
 
     class Arguments:
-        chat_room = Int()
-        message = String()
+        chat_room = graphene.ID(required=True)
+        message = graphene.String(required=True)
 
     @staticmethod
-    def mutate(self, info, chat_room, message):
+    def mutate(self , info, chat_room, message):
         # Use the username from the connection scope if authorized.
         # username = (
         #     info.context.user.username
@@ -97,11 +97,32 @@ class SendChatMessageMutation(graphene.Mutation, name="SendChatMessagePayload"):
         return SendChatMessageMutation(ok=True)
 
 
+class JoinChatMutation(graphene.Mutation):
+    ok = graphene.Boolean()
+
+    class Arguments:
+        chat_room = graphene.ID(required=True)
+        join = graphene.Boolean(required=True)
+
+    @staticmethod
+    def mutate(self, info, chat_room, join):
+        user: User = info.context.user
+        if not user.is_authenticated:
+            return JoinChatMutation(ok=False)
+        chat: ChatRoom = ChatRoom.objects.get(id=chat_room)
+        if join:
+            user.active_rooms.add(chat_room)
+        else:
+            user.active_rooms.remove(chat_room)
+        return JoinChatMutation(ok=True)
+
+
 class Mutation(ObjectType):
     send_chat_message = SendChatMessageMutation.Field()
     login = LoginMutation.Field()
     logout = LogoutMutation.Field()
     register = RegisterMutation.Field()
+    join_chat = JoinChatMutation.Field()
 
 
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()

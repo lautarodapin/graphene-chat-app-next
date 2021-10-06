@@ -20,6 +20,13 @@ const Header = () => {
                         sx={{ display: `flex`, justifyContent: `space-between` }}
                     >
                         Chat app
+                        {user && (
+                            <Link href="/chats">
+                                <Button color='inherit'>
+                                    Chats
+                                </Button>
+                            </Link>
+                        )}
                     </Container>
                     {user && (
                         <Link href="/users/logout">

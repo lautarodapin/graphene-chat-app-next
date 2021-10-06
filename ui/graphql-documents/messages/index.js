@@ -32,7 +32,7 @@ export const HISTORY_FRAGMENT = gql`
 
 export const HISTORY = gql`
     ${HISTORY_FRAGMENT}
-    query History ($chatRoom: String!, $filters: FiltersInput!){
+    query History ($chatRoom: ID!, $filters: FiltersInput!){
         history(chatRoom: $chatRoom, filters: $filters) {
             ...ChatMessageList
         }
@@ -40,7 +40,7 @@ export const HISTORY = gql`
 `
 
 export const SEND_CHAT_MESSAGE = gql`
-    mutation SendChatMessage($chatRoom: Int!, $message: String!) {
+    mutation SendChatMessage($chatRoom: ID!, $message: String!) {
         sendChatMessage(chatRoom: $chatRoom, message: $message) {
             ok
         }
@@ -50,7 +50,7 @@ export const SEND_CHAT_MESSAGE = gql`
 
 export const ON_NEW_CHAT_MESSAGE = gql`
     ${MESSAGE_FRAGMENT}
-    subscription OnNewChatMessage($chatRoom: String!) {
+    subscription OnNewChatMessage($chatRoom: ID!) {
         onNewChatMessage(chatRoom: $chatRoom) {
             sender {
                 id

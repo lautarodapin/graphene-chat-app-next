@@ -30,10 +30,17 @@ export const CHATS = gql`
 
 export const CHAT = gql`
     ${CHAT_FRAGMENT}
-    query Chat($id: STRING!) {
+    query Chat($id: ID!) {
         chat(id: $id) {
             ...ChatRoom
         }
     }
 `
 
+export const JOIN_CHAT_MUTATION = gql`
+    mutation JoinChat($chatRoom: ID!, $join: Boolean!) {
+        joinChat(chatRoom: $chatRoom, join: $join) {
+            ok
+        }
+    }
+`

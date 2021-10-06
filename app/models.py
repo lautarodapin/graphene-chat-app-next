@@ -14,6 +14,8 @@ class TimeModel(models.Model):
     mod_by = models.ForeignKey('app.User', models.CASCADE, related_name='+')
 
 class User(AbstractUser):
+    active_rooms = models.ManyToManyField('ChatRoom', related_name='active_users', blank=True)
+
     class Meta:
         ordering = ["username"]
 

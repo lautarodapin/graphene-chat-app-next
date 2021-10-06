@@ -1,5 +1,6 @@
 from typing import Tuple
 from graphene import String, Int, Field
+import graphene
 from graphene.types.objecttype import ObjectType
 import channels_graphql_ws
 from graphene.types.scalars import Boolean
@@ -12,11 +13,14 @@ class OnNewChatMessage(channels_graphql_ws.Subscription):
     message = Field(ChatMessageType, required=True)
 
     class Arguments:
-        chat_room = String()
+        chat_room = graphene.ID(required=True)
 
     def subscribe(self, info, chat_room=None):
         chat_room_obj = ChatRoom.objects.only('id').get(id=chat_room)
         return [str(chat_room_obj.id)]
+
+    def unsubscribe(self, info, chat_room=None):
+        print('unsubscribed', chat_room, info.context.user)
 
     def publish(self, info, chat_room=None):
         """Called to prepare the subscription notification message."""

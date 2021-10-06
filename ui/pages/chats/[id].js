@@ -1,45 +1,56 @@
-import { Formik } from "formik"
-import { Form } from "../../components/forms/form"
-import { SubmitButton } from "../../components/forms/submit-button"
-import { TextInput } from "../../components/forms/text-input"
 import { HISTORY, SEND_CHAT_MESSAGE } from "../../graphql-documents/messages"
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useMutation, useSubscription } from "@apollo/client"
 import { useRouter } from "next/dist/client/router"
 import { ON_NEW_CHAT_MESSAGE } from "../../graphql-documents/messages"
 import { CircularProgress, Grid, List, ListItem, ListItemText, Paper } from "@mui/material"
-import { useUser } from "../../contexts/user"
-import { Fab } from "@mui/material"
-import SendIcon from "@mui/icons-material/Send"
 import { useOnScreen } from "../../hooks/use-on-screen"
 import { useIsMounted } from "../../hooks/use-is-mounted"
+import { ChatInput } from "../../components/chat/chat-input"
+import { MessageList } from "../../components/chat/message-list"
+import { ScrollTo } from "../../components/scroll-to"
+import { JOIN_CHAT_MUTATION } from "@/graphql-documents/chats"
 
 const ChatDetail = ({ props }) => {
     const router = useRouter()
     const { id } = router.query
-    const { user } = useUser()
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const { data, loading, error, refetch, client } = useQuery(HISTORY, { variables: { chatRoom: id, filters: { page, pageSize } } })
-    const [sendMessage] = useMutation(SEND_CHAT_MESSAGE)
+    const { data, loading, error, refetch, client, subscribeToMore } = useQuery(HISTORY, { variables: { chatRoom: id, filters: { page, pageSize } } })
+    const [joinChat] = useMutation(JOIN_CHAT_MUTATION)
     const [messages, setMessages] = useState([])
     const [hasMore, setHasMore] = useState(false)
     const chatRef = useRef()
     const chatTopRef = useRef()
     const chatTopIsVisible = useOnScreen(chatTopRef)
     const isMounted = useIsMounted()
+    
+    const filterMessages = (list) => list.filter(message => !messages.some(innerMessage => innerMessage.id === message.id)) || []
+
+    useEffect(() => {
+        const join = async (value) => await joinChat({variables: {chatRoom: id, join: value}})
+        if (id) join(true)
+        return () => id && join(false)
+    }, [])
+    
+    useEffect(() => {
+        const unsubscribe = subscribeToMore({
+            document: ON_NEW_CHAT_MESSAGE,
+            variables: {chatRoom: id},
+            updateQuery: (prev, {subscriptionData}) => {
+                console.log(subscriptionData, prev)
+                if (!subscriptionData.data) return
+                setMessages(curr => [...curr, subscriptionData.data.onNewChatMessage.message])
+            }
+        })
+        if (unsubscribe) return () => unsubscribe() // TODO!
+    }, [subscribeToMore])
 
     useEffect(() => {
         if (chatRef.current) {
             chatRef.current.scrollIntoView({ behavior: "smooth" })
         }
     }, [messages])
-
-    const { data: newData } = useSubscription(ON_NEW_CHAT_MESSAGE, {
-        variables: { chatRoom: id },
-    })
-
-    const filterMessages = (list) => list.filter(message => !messages.some(innerMessage => innerMessage.id === message.id)) || []
 
     useEffect(() => {
         const firstLoad = async () => {
@@ -61,12 +72,6 @@ const ChatDetail = ({ props }) => {
     }, [])
 
     useEffect(() => {
-        if (newData?.onNewChatMessage) {
-            setMessages(curr => [...curr, newData.onNewChatMessage.message])
-        }
-    }, [newData, setMessages])
-
-    useEffect(() => {
         const loadMore = async () => {
             if (client && HISTORY) {
                 const { data } = await client.query({
@@ -82,7 +87,6 @@ const ChatDetail = ({ props }) => {
                 }
             }
         }
-
         if (chatTopIsVisible && isMounted() && !loading) {
             console.info('Is visible top')
             if (client && hasMore && id) {
@@ -92,63 +96,19 @@ const ChatDetail = ({ props }) => {
         }
     }, [chatTopIsVisible])
 
+    if (loading) return <CircularProgress />
+
     return (
         <Grid container xs={12} spacing={2}>
             <Grid item xs={12}>
                 <List style={{ maxHeight: '80vh', height: '80vh', overflowY: 'auto' }}>
                     <ListItem style={{ float: "left", clear: "both" }} ref={chatTopRef}></ListItem>
-                    {loading && <CircularProgress />}
-                    {messages && messages.map(message => {
-                        const align = user.id === message.user.id ? 'left' : 'right'
-                        return (
-                            <ListItem key={message.id}>
-                                <Grid container>
-                                    <Grid item xs={12}>
-                                        <ListItemText
-                                            align={align}
-                                            primary={`${message.user.username}: ${message.message}`}>
-                                        </ListItemText>
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <ListItemText align={align} secondary={message.createdAt}></ListItemText>
-                                    </Grid>
-                                </Grid>
-                            </ListItem>
-                        )
-                    })}
+                    <MessageList messages={messages} />
                     <ListItem style={{ float: "left", clear: "both" }} ref={chatRef}></ListItem>
                 </List>
             </Grid>
             <Grid item xs={12}>
-                <Formik
-                    initialValues={{ chatRoom: id, message: '' }}
-                    onSubmit={async (values, actions) => {
-                        actions.setSubmitting(true)
-                        await sendMessage({ variables: values })
-                        console.log('enviado')
-                        actions.resetForm()
-                        actions.setSubmitting(false)
-                    }}
-                    validate={values => {
-                        let errors = {}
-                        if (values.message.split('').length < 4) errors.message = 'Mayor a 3 caracteres'
-                        return errors
-                    }}
-                >
-                    {props => {
-                        return (
-                            <Form alignItems='flex-end'>
-                                <TextInput name='message' gridProps={{ xs: 11 }} fullWidth />
-                                <Grid xs={1} align='right'>
-                                    {props.isSubmitting
-                                        ? <CircularProgress />
-                                        : <Fab color="primary" aria-label="add" onClick={props.submitForm}><SendIcon /></Fab>
-                                    }
-                                </Grid>
-                            </Form>
-                        )
-                    }}
-                </Formik>
+                <ChatInput chatRoomId={id} />
             </Grid>
         </Grid>
     )
