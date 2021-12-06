@@ -1,8 +1,7 @@
-import { HISTORY, SEND_CHAT_MESSAGE } from "../../graphql-documents/messages"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useQuery, useMutation, useSubscription } from "@apollo/client"
 import { useRouter } from "next/dist/client/router"
-import { ON_NEW_CHAT_MESSAGE } from "../../graphql-documents/messages"
+import { ON_NEW_CHAT_MESSAGE_SUBSCRIPTION } from "../../graphql-documents/messages"
 import { CircularProgress, Grid, List, ListItem, ListItemText, Paper } from "@mui/material"
 import { useOnScreen } from "../../hooks/use-on-screen"
 import { useIsMounted } from "../../hooks/use-is-mounted"
@@ -10,13 +9,14 @@ import { ChatInput } from "../../components/chat/chat-input"
 import { MessageList } from "../../components/chat/message-list"
 import { ScrollTo } from "../../components/scroll-to"
 import { JOIN_CHAT_MUTATION } from "@/graphql-documents/chats"
+import { HISTORY_QUERY, SEND_CHAT_MESSAGE_MUTATION } from "@/graphql-documents/messages"
 
 const ChatDetail = ({ props }) => {
     const router = useRouter()
     const { id } = router.query
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const { data, loading, error, refetch, client, subscribeToMore } = useQuery(HISTORY, { variables: { chatRoom: id, filters: { page, pageSize } } })
+    const { data, loading, error, refetch, client, subscribeToMore } = useQuery(HISTORY_QUERY, { variables: { chatRoom: id, filters: { page, pageSize } } })
     const [joinChat] = useMutation(JOIN_CHAT_MUTATION)
     const [messages, setMessages] = useState([])
     const [hasMore, setHasMore] = useState(false)
@@ -25,17 +25,19 @@ const ChatDetail = ({ props }) => {
     const chatTopIsVisible = useOnScreen(chatTopRef)
     const isMounted = useIsMounted()
     
-    const filterMessages = (list) => list.filter(message => !messages.some(innerMessage => innerMessage.id === message.id)) || []
+    const filterMessages = useCallback((list) => {
+        return list.filter(message => !messages.some(innerMessage => innerMessage.id === message.id)) || []
+    }, [messages])
 
     useEffect(() => {
         const join = async (value) => await joinChat({variables: {chatRoom: id, join: value}})
         if (id) join(true)
         return () => id && join(false)
-    }, [])
+    }, [joinChat, id])
     
     useEffect(() => {
         const unsubscribe = subscribeToMore({
-            document: ON_NEW_CHAT_MESSAGE,
+            document: ON_NEW_CHAT_MESSAGE_SUBSCRIPTION,
             variables: {chatRoom: id},
             updateQuery: (prev, {subscriptionData}) => {
                 console.log(subscriptionData, prev)
@@ -44,7 +46,7 @@ const ChatDetail = ({ props }) => {
             }
         })
         if (unsubscribe) return () => unsubscribe() // TODO!
-    }, [subscribeToMore])
+    }, [subscribeToMore, id])
 
     useEffect(() => {
         if (chatRef.current) {
@@ -69,7 +71,7 @@ const ChatDetail = ({ props }) => {
             }
         }
         firstLoad()
-    }, [])
+    }, [client, filterMessages, id, page, pageSize])
 
     useEffect(() => {
         const loadMore = async () => {
@@ -94,7 +96,7 @@ const ChatDetail = ({ props }) => {
                 setPage(page + 1)
             }
         }
-    }, [chatTopIsVisible])
+    }, [chatTopIsVisible, client, filterMessages, hasMore, id, isMounted, loading, page, pageSize])
 
     if (loading) return <CircularProgress />
 

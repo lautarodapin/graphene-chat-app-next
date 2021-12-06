@@ -1,14 +1,14 @@
 const { default: gql } = require("graphql-tag");
 const { CHAT_FRAGMENT } = require("../chats");
 
-export const MESSAGE_FRAGMENT = gql`
+export const MESSAGE = gql`
     ${CHAT_FRAGMENT}
     fragment ChatMessage on ChatMessageType {
         id
         message
         createdAt
         modAt
-        user {
+        createdBy {
             id
             username
             email
@@ -19,8 +19,8 @@ export const MESSAGE_FRAGMENT = gql`
     }
 `
 
-export const HISTORY_FRAGMENT = gql`
-    ${MESSAGE_FRAGMENT}
+export const HISTORY = gql`
+    ${MESSAGE}
     fragment ChatMessageList on ChatMessageListType {
         items {
             ...ChatMessage
@@ -30,8 +30,8 @@ export const HISTORY_FRAGMENT = gql`
     }
 `
 
-export const HISTORY = gql`
-    ${HISTORY_FRAGMENT}
+export const HISTORY_QUERY = gql`
+    ${HISTORY}
     query History ($chatRoom: ID!, $filters: FiltersInput!){
         history(chatRoom: $chatRoom, filters: $filters) {
             ...ChatMessageList
@@ -39,17 +39,24 @@ export const HISTORY = gql`
     }
 `
 
-export const SEND_CHAT_MESSAGE = gql`
-    mutation SendChatMessage($chatRoom: ID!, $message: String!) {
-        sendChatMessage(chatRoom: $chatRoom, message: $message) {
-            ok
+export const SEND_CHAT_MESSAGE_MUTATION = gql`
+${MESSAGE}
+    mutation SendChatMessage($input: SendChatMessageMutationInput!) {
+        sendChatMessage(input: $input) {
+            chatMessage {
+                ...ChatMessage
+            }
+            errors {
+                field
+                messages
+            }
         }
     }
 `
 
 
-export const ON_NEW_CHAT_MESSAGE = gql`
-    ${MESSAGE_FRAGMENT}
+export const ON_NEW_CHAT_MESSAGE_SUBSCRIPTION = gql`
+    ${MESSAGE}
     subscription OnNewChatMessage($chatRoom: ID!) {
         onNewChatMessage(chatRoom: $chatRoom) {
             sender {

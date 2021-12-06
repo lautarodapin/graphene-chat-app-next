@@ -11,7 +11,7 @@ const Logout = () => {
             localStorage.removeItem("token")
             router.push({pathname: "/users/login"})
         }
-    }, [])
+    }, [router])
 
     return null
 };

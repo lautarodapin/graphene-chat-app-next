@@ -8,15 +8,14 @@ import { useMutation } from "@apollo/client";
 import { SubmitButton } from "../../components/forms/submit-button";
 import { FormErrors } from "../../components/forms/form-errors";
 import { useRouter } from "next/dist/client/router";
-import { TOKEN_AUTH } from "graphql-documents/documents";
-import { USER } from "../../graphql-documents/documents";
+import {TOKEN_AUTH_MUTATION, USER_QUERY} from "graphql-documents/users/index"
 
 
 
 const Login = () => {
     const router = useRouter()
-    const [tokenAuth] = useMutation(TOKEN_AUTH, {refetchQueries: [
-        USER,
+    const [tokenAuth] = useMutation(TOKEN_AUTH_MUTATION, {refetchQueries: [
+        USER_QUERY,
     ]})
     
     return (
