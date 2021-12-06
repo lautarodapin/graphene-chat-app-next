@@ -20,15 +20,7 @@ class SendChatMessageForm(TimestampModelForm):
     class Meta:
         model = ChatMessage
         fields = ['message', 'chat']
-        
-    def save(self, commit=True):
-        instance: ChatMessage = super().save(commit=commit)
-        OnNewChatMessage.new_chat_message(
-            chat_room=instance.chat,
-            message=instance,
-            sender=instance.created_by,
-        )
-        return instance
+
 
 class JoinChatForm(UserMixinForm, forms.Form):
     chat_room = forms.IntegerField(required=True)
