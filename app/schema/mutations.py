@@ -5,12 +5,17 @@ from channels.auth import login, logout
 from asgiref.sync import async_to_sync
 from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import Int
+from graphene_django.forms.mutation import DjangoModelFormMutation, DjangoFormMutation
+from graphene_django.types import ErrorType
 from django.contrib.auth import login as django_login, logout as django_logout
 
 from app.models import ChatMessage, ChatRoom, User
 from app.schema.subscriptions import OnNewChatMessage
 from django.forms import ValidationError
-
+from django.contrib.auth.forms import (
+    UserCreationForm as DjangoUserCreationForm,
+    AuthenticationForm as DjangoAuthenticationForm,
+)
 from .types import UserType
 import graphql_jwt
 
@@ -36,8 +41,8 @@ class RegisterMutation(graphene.Mutation):
 
 
 class LoginMutation(graphene.Mutation):
-    ok = Boolean(required=True)
-    user = graphene.Field(UserType, required=True)
+    user = graphene.Field(UserType)
+    errors = graphene.List(ErrorType)
 
     class Arguments:
         username = String(required=True)
@@ -45,9 +50,10 @@ class LoginMutation(graphene.Mutation):
 
     @staticmethod
     def mutate(self , info, username, password):
-        user = authenticate(username=username, password=password)
-        if user is None:
-            raise ValidationError({"__all__": "User doesn\'t exists"})
+        form = DjangoAuthenticationForm(data={'username': username, 'password': password})
+        if not form.is_valid():
+            return LoginMutation(errors=ErrorType.from_errors(form.errors))
+        user = form.get_user()
         info.context.scope["session"] = info.context.session
         async_to_sync(login)(info.context.scope, user)
         django_login(info.context, user=user)
@@ -123,7 +129,6 @@ class Mutation(ObjectType):
     logout = LogoutMutation.Field()
     register = RegisterMutation.Field()
     join_chat = JoinChatMutation.Field()
-
 
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()

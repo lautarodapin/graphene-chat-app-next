@@ -8,6 +8,6 @@ import graphql_jwt
 class Mutation(AppMutation, graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     refresh_token = graphql_jwt.Refresh.Field()
-    verify_token = graphql_jwt.Verify.Field()    
+    verify_token = graphql_jwt.Verify.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)
