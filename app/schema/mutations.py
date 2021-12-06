@@ -18,27 +18,11 @@ from django.contrib.auth.forms import (
 )
 from .types import UserType
 import graphql_jwt
+from app.forms import SendChatMessageForm, UserCreationForm
 
-class RegisterMutation(graphene.Mutation):
-    ok = Boolean(required=True)
-    user = graphene.Field(UserType, required=True)
-
-    class Arguments:
-        username = String(required=True)
-        password = String(required=True)
-        password2 = String(required=True)
-
-    @staticmethod
-    def mutate(self , info, username, password, password2):
-        if password != password2:
-            raise ValidationError({"password": "Passwords are not equal"})
-        if User.objects.filter(username__icontains=username).exists():
-            raise ValidationError({"username": "Username already exists"})
-        user = User.objects.create_user(username=username, password=password)
-        LoginMutation.mutate(self, info, username, password)
-
-        return RegisterMutation(ok=True, user=user)
-
+class RegisterMutation(DjangoModelFormMutation):
+    class Meta:
+        form_class = UserCreationForm
 
 class LoginMutation(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -77,31 +61,9 @@ class LogoutMutation(graphene.Mutation):
         return LogoutMutation(ok=False)
 
 
-class SendChatMessageMutation(graphene.Mutation):
-    ok = Boolean()
-
-    class Arguments:
-        chat_room = graphene.ID(required=True)
-        message = graphene.String(required=True)
-
-    @staticmethod
-    def mutate(self , info, chat_room, message):
-        # Use the username from the connection scope if authorized.
-        # username = (
-        #     info.context.user.username
-        #     if info.context.user.is_authenticated
-        #     else "Anonymous"
-        # )
-        user : User = info.context.user
-        if not user.is_authenticated:
-            return SendChatMessageMutation(ok=False)
-        chat_room: ChatRoom = ChatRoom.objects.get(id=chat_room)
-        message : ChatMessage = ChatMessage.objects.create(user=user, chat=chat_room, message=message, created_by=user, mod_by=user)
-       # Notify subscribers.
-        OnNewChatMessage.new_chat_message(chat_room=chat_room, message=message, sender=user)
-
-        return SendChatMessageMutation(ok=True)
-
+class SendChatMessageMutation(DjangoModelFormMutation):
+    class Meta:
+        form_class = SendChatMessageForm
 
 class JoinChatMutation(graphene.Mutation):
     ok = graphene.Boolean()

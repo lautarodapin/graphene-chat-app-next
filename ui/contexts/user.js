@@ -10,7 +10,7 @@ export const UserContext = createContext({
 
 export const UserProvider = ({children}) => {
     const router = useRouter()
-    const { data, loading, error } = useQuery(USER)
+    const { data, loading, error } = useQuery(USER, {fetchPolicy: 'cache-and-network'})
     const isLogin = router.asPath.toLowerCase().includes('users/login')
 
     /*

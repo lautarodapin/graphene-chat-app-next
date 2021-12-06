@@ -9,9 +9,9 @@ class TimeModel(models.Model):
         ordering = ["-created_at"]
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey('app.User', models.CASCADE, related_name='+')
+    created_by = models.ForeignKey('app.User', models.SET_NULL, related_name='+', null=True)
     mod_at = models.DateTimeField(auto_now=True)
-    mod_by = models.ForeignKey('app.User', models.CASCADE, related_name='+')
+    mod_by = models.ForeignKey('app.User', models.SET_NULL, related_name='+', null=True)
 
 class User(AbstractUser):
     active_rooms = models.ManyToManyField('ChatRoom', related_name='active_users', blank=True)

@@ -29,11 +29,18 @@ const Header = () => {
                         )}
                     </Container>
                     {user && (
-                        <Link href="/users/logout">
-                            <Button color='inherit'>
-                                Logout
-                            </Button>
-                        </Link>
+                        <>
+                            <Link href="/users/logout">
+                                <Button color='inherit' disabled>
+                                    {user.username}
+                                </Button>
+                            </Link>
+                            <Link href="/users/logout">
+                                <Button color='inherit'>
+                                    Logout
+                                </Button>
+                            </Link>
+                        </>
                     )}
                     {!user && (
                         <Link href="/users/login">

@@ -14,7 +14,7 @@ class Query(ObjectType):
     hello = String()
     history = Field(ChatMessageListType, chat_room=graphene.ID(required=True), filters=FiltersInput())
     user = Field(UserType)
-    users = Field(NonNull(UserType))
+    users = graphene.List(NonNull(UserType))
     chat = Field(ChatRoomType, id=graphene.ID(required=True))
     chats = List(NonNull(ChatRoomType),)
 

@@ -22,14 +22,22 @@ const Login = () => {
     return (
         <Formik initialValues={{}} onSubmit={async (values, actions) => {
             actions.setSubmitting(true)
-            console.log('submitting')
-            const {data: {tokenAuth: {token}}} = await tokenAuth({ variables: { username: values.username, password: values.password } })
-            console.log('resposne', token)
-            if (token) {
-                localStorage.setItem("token", token)
-                router.push({pathname: '/'})
+            try {
+                const {data: {tokenAuth: {token}}, errors} = await tokenAuth({ variables: { username: values.username, password: values.password } })
+                console.log('asda',errors, data)
+                if (errors.length === 0) {
+                    if (token) {
+                        localStorage.setItem("token", token)
+                        router.push({pathname: '/'})
+                    }
+                } else {
+                    actions.setStatus({formErrors: errors.map(error => error.message).join(', ')})
+                }
+            } catch (error) {
+                actions.setErrors({__all__: error.message})
+            } finally{
+                actions.setSubmitting(false)
             }
-            actions.setSubmitting(false)
         }}>
             {props => {
                 return (
