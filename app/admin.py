@@ -15,4 +15,4 @@ class ChatRoomAdmin(admin.ModelAdmin):
 
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
-    list_display = ['id', 'message', 'chat', 'user', 'created_at']
+    list_display = ['id', 'message', 'chat', 'created_by', 'created_at']

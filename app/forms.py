@@ -7,23 +7,26 @@ from .models import ChatRoom, User, ChatMessage
 from django import forms
 from .schema.subscriptions import OnNewChatMessage
 from core.forms import TimestampModelForm, UserMixinForm
+
+
 class UserCreationForm(DjangoUserCreationForm):
     class Meta:
         model = User
         fields = ['username']
         field_classes = {'username': UsernameField}
-        
+
+
 class SendChatMessageForm(TimestampModelForm):
     class Meta:
         model = ChatMessage
-        fields = ['message', 'user', 'chat']
+        fields = ['message', 'chat']
         
     def save(self, commit=True):
         instance: ChatMessage = super().save(commit=commit)
         OnNewChatMessage.new_chat_message(
             chat_room=instance.chat,
             message=instance,
-            sender=instance.user,
+            sender=instance.created_by,
         )
         return instance
 
