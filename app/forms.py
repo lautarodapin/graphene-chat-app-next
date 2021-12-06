@@ -5,7 +5,6 @@ from django.contrib.auth.forms import (
 from django.shortcuts import get_object_or_404
 from .models import ChatRoom, User, ChatMessage
 from django import forms
-from .schema.subscriptions import OnNewChatMessage
 from core.forms import TimestampModelForm, UserMixinForm
 
 

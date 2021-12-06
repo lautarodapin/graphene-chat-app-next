@@ -2,7 +2,7 @@ import channels_graphql_ws
 import channels, graphene
 from .schema import schema
 import json
-from app.signals import join_chat_signal
+# from app.signals import join_chat_signal
 
 def demo_middleware(next_middleware, root, info, *args, **kwds):
     """Demo GraphQL middleware.
@@ -42,13 +42,13 @@ class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     async def websocket_receive(self, message):
         text = json.loads(message.get('text'))
 
-        if text and isinstance(text, dict):
-            type = text.get('type')
-            id = text.get('id')
-            if type and id:
-                kwargs = dict(sender='leave', id=id, type=type, user=self.scope['user'].id)
-                print(f'{kwargs}')
-                join_chat_signal.send(**kwargs)
+        # if text and isinstance(text, dict):
+        #     type = text.get('type')
+        #     id = text.get('id')
+        #     if type and id:
+        #         kwargs = dict(sender='leave', id=id, type=type, user=self.scope['user'].id)
+        #         print(f'{kwargs}')
+        #         join_chat_signal.send(**kwargs)
 
         print(f'Websocket receive {message=}')
         return await super().websocket_receive(message)
