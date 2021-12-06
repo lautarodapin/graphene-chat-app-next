@@ -1,13 +1,13 @@
 import { CircularProgress, Fab, Grid } from '@mui/material'
-import {Formik} from 'formik'
+import { Formik } from 'formik'
 import { TextInput } from '../forms/text-input'
 import SendIcon from "@mui/icons-material/Send"
-import { SEND_CHAT_MESSAGE_MUTATION } from '@graphql-documents/messages';
 import { useMutation } from '@apollo/client'
 import { Form } from '../forms/form'
+import { SEND_MESSAGE_MUTATION } from '@/graphql-documents/messages'
 
-export const ChatInput = ({chatRoomId, ...props }) => {
-    const [sendMessage] = useMutation(SEND_CHAT_MESSAGE_MUTATION)
+export const ChatInput = ({ chatRoomId, ...props }) => {
+    const [sendMessage] = useMutation(SEND_MESSAGE_MUTATION)
 
     return (
         <Formik

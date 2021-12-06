@@ -1,0 +1,160 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type ChatMessageListType {
+  items: [ChatMessageType!]!
+  count: Int!
+  hasMore: Boolean!
+}
+
+type ChatMessageType implements PaginationType {
+  id: ID!
+  createdAt: DateTime!
+  createdBy: UserType
+  modAt: DateTime!
+  modBy: UserType
+  chat: ChatRoomType!
+  message: String!
+  count: Int
+  hasMore: Boolean
+}
+
+type ChatRoomType {
+  id: ID!
+  createdAt: DateTime!
+  createdBy: UserType
+  modAt: DateTime!
+  modBy: UserType
+  chatName: String
+  activeUsers: [UserType!]!
+  messages: [ChatMessageType!]!
+}
+
+scalar DateTime
+
+type ErrorType {
+  field: String!
+  messages: [String!]!
+}
+
+input FiltersInput {
+  pageSize: Int = 10
+  page: Int! = 1
+}
+
+scalar GenericScalar
+
+input JoinChatMutationInput {
+  chatRoom: Int!
+  join: Boolean
+  clientMutationId: String
+}
+
+type JoinChatMutationPayload {
+  chatRoom: Int!
+  join: Boolean
+  errors: [ErrorType]
+  clientMutationId: String
+}
+
+type LoginMutation {
+  user: UserType
+  errors: [ErrorType]
+}
+
+type LogoutMutation {
+  ok: Boolean!
+}
+
+type Mutation {
+  sendChatMessage(input: SendChatMessageMutationInput!): SendChatMessageMutationPayload
+  login(password: String!, username: String!): LoginMutation
+  logout: LogoutMutation
+  register(input: RegisterMutationInput!): RegisterMutationPayload
+  joinChat(input: JoinChatMutationInput!): JoinChatMutationPayload
+  tokenAuth(username: String!, password: String!): ObtainJSONWebToken
+  verifyToken(token: String!): Verify
+  refreshToken(token: String!): Refresh
+}
+
+type ObtainJSONWebToken {
+  token: String
+}
+
+type OnNewChatMessage {
+  sender: UserType!
+  chatRoom: ChatRoomType!
+  message: ChatMessageType!
+}
+
+interface PaginationType {
+  count: Int
+  hasMore: Boolean
+}
+
+type Query {
+  hello: String
+  history(chatRoom: ID!, filters: FiltersInput): ChatMessageListType
+  user: UserType
+  users: [UserType!]
+  chat(id: ID!): ChatRoomType
+  chats: [ChatRoomType!]
+}
+
+type Refresh {
+  token: String
+  payload: GenericScalar
+}
+
+input RegisterMutationInput {
+  username: String!
+  password1: String!
+  password2: String!
+  id: ID
+  clientMutationId: String
+}
+
+type RegisterMutationPayload {
+  user: UserType
+  errors: [ErrorType]
+  clientMutationId: String
+}
+
+input SendChatMessageMutationInput {
+  message: String!
+  chat: ID!
+  id: ID
+  clientMutationId: String
+}
+
+type SendChatMessageMutationPayload {
+  chatMessage: ChatMessageType
+  errors: [ErrorType]
+  clientMutationId: String
+}
+
+type Subscription {
+  onNewChatMessage(chatRoom: ID!): OnNewChatMessage
+}
+
+type UserType {
+  id: ID!
+  password: String!
+  lastLogin: DateTime
+  isSuperuser: Boolean!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  isStaff: Boolean!
+  isActive: Boolean!
+  dateJoined: DateTime!
+  activeRooms: [ChatRoomType!]!
+}
+
+type Verify {
+  payload: GenericScalar
+}

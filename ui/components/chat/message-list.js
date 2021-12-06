@@ -1,8 +1,8 @@
 import { Grid, ListItem, ListItemText } from "@mui/material"
-import { useUser } from "../../contexts/user"
+import { useUser } from "contexts/user"
 
 export const MessageList = ({ messages, ...props }) => {
-    const {user} = useUser()
+    const { user } = useUser()
 
     return (
         <>

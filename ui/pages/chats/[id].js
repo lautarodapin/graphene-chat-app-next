@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useQuery, useMutation, useSubscription } from "@apollo/client"
 import { useRouter } from "next/dist/client/router"
-import { ON_NEW_CHAT_MESSAGE_SUBSCRIPTION } from "../../graphql-documents/messages"
 import { CircularProgress, Grid, List, ListItem, ListItemText, Paper } from "@mui/material"
 import { useOnScreen } from "../../hooks/use-on-screen"
 import { useIsMounted } from "../../hooks/use-is-mounted"
 import { ChatInput } from "../../components/chat/chat-input"
 import { MessageList } from "../../components/chat/message-list"
 import { ScrollTo } from "../../components/scroll-to"
-import { JOIN_CHAT_MUTATION } from "@/graphql-documents/chats"
-import { HISTORY_QUERY, SEND_CHAT_MESSAGE_MUTATION } from "@/graphql-documents/messages"
+import { HISTORY_QUERY } from "@/graphql-documents/messages"
+import { JOIN_CHAT_MUTATION, ON_NEW_CHAT_MESSAGE_SUBSCRIPTION } from "@/graphql-documents/chats"
 
 const ChatDetail = ({ props }) => {
     const router = useRouter()
     const { id } = router.query
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const { data, loading, error, refetch, client, subscribeToMore } = useQuery(HISTORY_QUERY, { variables: { chatRoom: id, filters: { page, pageSize } } })
+    const { data, loading, error, refetch, client, subscribeToMore } = useQuery(HISTORY_QUERY, {
+        variables: { chatRoom: id, filters: { page, pageSize } },
+    })
     const [joinChat] = useMutation(JOIN_CHAT_MUTATION)
     const [messages, setMessages] = useState([])
     const [hasMore, setHasMore] = useState(false)
@@ -24,22 +25,22 @@ const ChatDetail = ({ props }) => {
     const chatTopRef = useRef()
     const chatTopIsVisible = useOnScreen(chatTopRef)
     const isMounted = useIsMounted()
-    
+
     const filterMessages = useCallback((list) => {
         return list.filter(message => !messages.some(innerMessage => innerMessage.id === message.id)) || []
     }, [messages])
 
     useEffect(() => {
-        const join = async (value) => await joinChat({variables: {chatRoom: id, join: value}})
+        const join = async (value) => await joinChat({ variables: { input: { chatRoom: id, join: value } } })
         if (id) join(true)
         return () => id && join(false)
     }, [joinChat, id])
-    
+
     useEffect(() => {
         const unsubscribe = subscribeToMore({
             document: ON_NEW_CHAT_MESSAGE_SUBSCRIPTION,
-            variables: {chatRoom: id},
-            updateQuery: (prev, {subscriptionData}) => {
+            variables: { chatRoom: id },
+            updateQuery: (prev, { subscriptionData }) => {
                 console.log(subscriptionData, prev)
                 if (!subscriptionData.data) return
                 setMessages(curr => [...curr, subscriptionData.data.onNewChatMessage.message])
@@ -56,14 +57,14 @@ const ChatDetail = ({ props }) => {
 
     useEffect(() => {
         const firstLoad = async () => {
-            if (client && HISTORY) {
+            if (client && HISTORY_QUERY) {
                 const { data } = await client.query({
-                    query: HISTORY, variables: {
+                    query: HISTORY_QUERY, variables: {
                         chatRoom: id, filters: { page, pageSize },
                     }
                 })
                 console.log('load more', data)
-                if (data) {
+                if (data && data.history) {
                     setMessages(curr => [...curr, ...filterMessages(data?.history.items)])
                     setHasMore(data?.history.hasMore)
                     chatRef.current.scrollIntoView()
@@ -75,9 +76,9 @@ const ChatDetail = ({ props }) => {
 
     useEffect(() => {
         const loadMore = async () => {
-            if (client && HISTORY) {
+            if (client && HISTORY_QUERY) {
                 const { data } = await client.query({
-                    query: HISTORY, variables: {
+                    query: HISTORY_QUERY, variables: {
                         chatRoom: id, filters: { page: page + 1, pageSize },
                     }
                 })

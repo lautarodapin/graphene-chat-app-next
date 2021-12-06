@@ -1,8 +1,8 @@
+import { CHATS_QUERY } from "@/graphql-documents/chats"
 import { useQuery } from "@apollo/client"
-import { CHATS } from "../../graphql-documents/chats"
 import Link from 'next/link'
-const ChatList = ({props}) => {
-    const {data, loading, error} = useQuery(CHATS)
+const ChatList = ({ props }) => {
+    const { data, loading, error } = useQuery(CHATS_QUERY)
 
     return (
         <>
