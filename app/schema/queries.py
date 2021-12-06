@@ -9,6 +9,7 @@ from app.schema.types import (
     ChatMessageType, ChatRoomType, FiltersInput, UserType,
     ChatMessageListType
 )
+from graphql.execution.base import ResolveInfo
 
 class Query(ObjectType):
     hello = String()
@@ -18,10 +19,10 @@ class Query(ObjectType):
     chat = Field(ChatRoomType, id=graphene.ID(required=True))
     chats = List(NonNull(ChatRoomType),)
 
-    def resolve_hello(self, info):
+    def resolve_hello(self, info: ResolveInfo):
         return 'world'
 
-    def resolve_history(self, info, chat_room, filters):
+    def resolve_history(self, info: ResolveInfo, chat_room, filters):
         queryset = (
             ChatMessage.objects.filter(chat=chat_room)
         )
@@ -31,16 +32,16 @@ class Query(ObjectType):
             has_more=filters.has_more,
         )
 
-    def resolve_user(self, info):
+    def resolve_user(self, info: ResolveInfo):
         if info.context.user.is_authenticated:
             return info.context.user
         return None
 
-    def resolve_chat(self, info, id):
+    def resolve_chat(self, info: ResolveInfo, id):
         return ChatRoom.objects.get(id=id)
 
-    def resolve_chats(self, info):
+    def resolve_chats(self, info: ResolveInfo):
         return ChatRoom.objects.all()
 
-    def resolve_users(self, info):
+    def resolve_users(self, info: ResolveInfo):
         return User.objects.exclude(id=info.context.user.id)

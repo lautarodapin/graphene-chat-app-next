@@ -20,6 +20,7 @@ from .types import UserType
 import graphql_jwt
 from app.forms import JoinChatForm, SendChatMessageForm, UserCreationForm
 from core.graphql import RequestMixin
+from graphql.execution.base import ResolveInfo
 class RegisterMutation(DjangoModelFormMutation):
     class Meta:
         form_class = UserCreationForm
@@ -33,7 +34,7 @@ class LoginMutation(graphene.Mutation):
         password = String(required=True)
 
     @staticmethod
-    def mutate(self , info, username, password):
+    def mutate(self , info: ResolveInfo, username, password):
         form = DjangoAuthenticationForm(data={'username': username, 'password': password})
         if not form.is_valid():
             return LoginMutation(errors=ErrorType.from_errors(form.errors))
@@ -64,6 +65,7 @@ class LogoutMutation(graphene.Mutation):
 class SendChatMessageMutation(RequestMixin, DjangoModelFormMutation):
     class Meta:
         form_class = SendChatMessageForm
+
 
 class JoinChatMutation(RequestMixin, DjangoFormMutation):
     class Meta:
