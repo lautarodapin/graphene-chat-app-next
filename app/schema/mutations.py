@@ -18,8 +18,8 @@ from django.contrib.auth.forms import (
 )
 from .types import UserType
 import graphql_jwt
-from app.forms import SendChatMessageForm, UserCreationForm
-
+from app.forms import JoinChatForm, SendChatMessageForm, UserCreationForm
+from core.graphql import RequestMixin
 class RegisterMutation(DjangoModelFormMutation):
     class Meta:
         form_class = UserCreationForm
@@ -61,28 +61,13 @@ class LogoutMutation(graphene.Mutation):
         return LogoutMutation(ok=False)
 
 
-class SendChatMessageMutation(DjangoModelFormMutation):
+class SendChatMessageMutation(RequestMixin, DjangoModelFormMutation):
     class Meta:
         form_class = SendChatMessageForm
 
-class JoinChatMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        chat_room = graphene.ID(required=True)
-        join = graphene.Boolean(required=True)
-
-    @staticmethod
-    def mutate(self, info, chat_room, join):
-        user: User = info.context.user
-        if not user.is_authenticated:
-            return JoinChatMutation(ok=False)
-        chat: ChatRoom = ChatRoom.objects.get(id=chat_room)
-        if join:
-            user.active_rooms.add(chat_room)
-        else:
-            user.active_rooms.remove(chat_room)
-        return JoinChatMutation(ok=True)
+class JoinChatMutation(RequestMixin, DjangoFormMutation):
+    class Meta:
+        form_class = JoinChatForm
 
 
 class Mutation(ObjectType):
