@@ -20,6 +20,9 @@ export const ChatInput = () => {
     return (
         <Formik
             initialValues={{ ...defaultInitial }}
+            validateOnChange={false}
+            validateOnMount={false}
+            validateOnBlur={false}
             onSubmit={async (values, actions) => {
                 actions.setSubmitting(true)
                 await sendMessage({ variables: { input: values } })
@@ -33,16 +36,18 @@ export const ChatInput = () => {
                 return errors
             }}
         >
-            {props => {
+            {({ submitForm, isSubmitting }) => {
                 return (
                     <Form>
-                        <Grid item={true} xs={12} container={true} alignItems='flex-end'>
-                            <TextInput name='message' gridProps={{ xs: 11 }} fullWidth={true} />
-                            <Grid xs={1} justifyContent='right'>
-                                {props.isSubmitting
-                                    ? <CircularProgress />
-                                    : <Fab color="primary" aria-label="add" onClick={props.submitForm}><SendIcon /></Fab>
-                                }
+                        <Grid item={true} xs={12}>
+                            <Grid container={true} spacing={2} alignItems='flex-end'>
+                                <TextInput name='message' gridProps={{ xs: 11 }} />
+                                <Grid xs={1} justifyContent='right'>
+                                    {isSubmitting
+                                        ? <CircularProgress />
+                                        : <Fab color="primary" aria-label="add" onClick={submitForm}><SendIcon /></Fab>
+                                    }
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Form>

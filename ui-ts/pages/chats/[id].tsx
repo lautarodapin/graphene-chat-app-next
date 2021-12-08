@@ -1,102 +1,83 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useQuery, useMutation, useSubscription } from "@apollo/client"
+import { useQuery, useMutation, useSubscription, NetworkStatus } from "@apollo/client"
 import { useRouter } from "next/dist/client/router"
 import { CircularProgress, Grid, List, ListItem, ListItemText, Paper } from "@mui/material"
 import { ChatInput } from "../../components/chat/chat-input"
 import { MessageList } from "../../components/chat/message-list"
 import { ScrollTo } from "../../components/scroll-to"
-import { MessageFragment, OnNewChatMessageDocument, useHistoryQuery, useJoinChatMutation, useOnNewChatMessageSubscription } from "../../generated/graphql"
+import { MessageFragment, OnNewChatMessageDocument, useHistoryLazyQuery, useHistoryQuery, useJoinChatMutation, useOnNewChatMessageSubscription } from "../../generated/graphql"
 import { NextPage } from "next"
 import { useOnScreen } from "../../hooks/use-on-screen"
 import { useIsMounted } from "../../hooks/use-is-mounted"
+import { InitialMessageList } from "../../components/chat/initial-message-list"
 
 const ChatDetail: NextPage = () => {
     const router = useRouter()
     const id = router.query.id as string
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const { data, loading, error, refetch, fetchMore, client, subscribeToMore } = useHistoryQuery({ variables: { chatRoom: id, filters: { page, pageSize } } })
+    const { data, fetchMore, loading, error, refetch, networkStatus } = useHistoryQuery({
+        variables: { chatRoom: id, filters: { page, pageSize } },
+    })
+    const { data: newMessage } = useOnNewChatMessageSubscription({ variables: { chatRoom: id } })
     const [joinChat] = useJoinChatMutation()
-    const [messages, setMessages] = useState<MessageFragment[]>([])
     const [hasMore, setHasMore] = useState(false)
-    const chatRef = useRef<HTMLLIElement | null>(null)
+    const chatBottomRef = useRef<HTMLLIElement | null>(null)
     const chatTopRef = useRef<HTMLLIElement | null>(null)
-    const chatTopIsVisible = useOnScreen(chatTopRef)
-    const isMounted = useIsMounted()
+    const topIsVisible = useOnScreen(chatTopRef)
+    const bottomIsVisible = useOnScreen(chatBottomRef)
+    const shouldLoadMore = !bottomIsVisible && topIsVisible
+    const firstMount = useRef(true)
 
-    const filterMessages = useCallback((list: MessageFragment[]) => {
-        return list.filter(message => !messages.some(innerMessage => innerMessage.id === message.id)) || []
-    }, [messages])
+    // const isMounted = useIsMounted()
+    const [messages, setMessages] = useState<MessageFragment[]>([])
+
+    const setFilterMessages = (items: MessageFragment[]) => {
+        const newMessages = [
+            ...messages,
+            ...items,
+        ].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+            .reduce((acc: MessageFragment[], curr) => {
+                return acc.find(m => m.id === curr.id) ? acc : [...acc, curr]
+            }, [])
+        setMessages(newMessages)
+    }
 
     useEffect(() => {
-        if (id) joinChat({ variables: { input: { chatRoom: id, join: true } } })
-        return () => {
-            joinChat({ variables: { input: { chatRoom: id, join: false } } })
+        if (newMessage?.onNewChatMessage) {
+            console.log("new message", newMessage.onNewChatMessage)
+            setFilterMessages([newMessage.onNewChatMessage.message])
+            if (!shouldLoadMore) process.nextTick(() => chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }))
         }
-    }, [joinChat, id])
+    }, [newMessage])
 
     useEffect(() => {
-        const unsubscribe = subscribeToMore({
-            document: OnNewChatMessageDocument,
-            variables: { chatRoom: id },
-            updateQuery: (prev, { subscriptionData }) => {
-                console.log(subscriptionData, prev)
-                if (!subscriptionData.data) return subscriptionData.data
-                // setMessages(curr => [...curr, subscriptionData.data.onNewChatMessage.message])
-                return subscriptionData.data
-            }
-        })
-        if (unsubscribe) return () => unsubscribe() // TODO!
-    }, [subscribeToMore, id])
+        if (firstMount.current) chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [firstMount, chatBottomRef.current])
 
     useEffect(() => {
-        if (chatRef.current) {
-            chatRef.current.scrollIntoView({ behavior: "smooth" })
+        if (shouldLoadMore && !loading && hasMore && firstMount.current === false) {
+            refetch({ chatRoom: id, filters: { page: page + 1, pageSize } })
+            setPage(page + 1)
         }
-    }, [messages])
+    }, [shouldLoadMore])
 
     useEffect(() => {
-        const firstLoad = async () => {
-            if (fetchMore) {
-                const { data } = await fetchMore({ variables: { chatRoom: id, filters: { page, pageSize } } })
-                // const { data } = await client.query({
-                //     query: HISTORY_QUERY, variables: {
-                //         chatRoom: id, filters: { page, pageSize },
-                //     }
-                // })
-                console.log('load more', data)
-                if (data && data.history !== null && data.history && data.history.items.length > 0) {
-                    const items = data.history.items
-                    setMessages(curr => [...curr, ...filterMessages(items)])
-                    setHasMore(data?.history.hasMore)
-                    chatRef.current?.scrollIntoView()
+        if (data?.history) {
+            setHasMore(data.history.hasMore)
+            if (data?.history?.items.length !== 0) {
+                if (firstMount.current) firstMount.current = false
+                setFilterMessages(data.history.items)
+                if (firstMount.current) {
+                    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
                 }
             }
         }
-        firstLoad()
-    }, [client, filterMessages, id, page, pageSize])
+        if (!shouldLoadMore) chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
+        if (shouldLoadMore) chatTopRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [data, shouldLoadMore])
 
-    useEffect(() => {
-        const loadMore = async () => {
-            if (fetchMore && hasMore) {
-                const { data } = await fetchMore({ variables: { chatRoom: id, filters: { page: page + 1, pageSize } } })
-                console.log('load more', data)
-                if (data && data.history !== null && data.history && data.history.items.length > 0) {
-                    const items = data.history.items
-                    setMessages(curr => [...filterMessages(items), ...curr])
-                    setHasMore(data?.history.hasMore)
-                    chatTopRef.current?.scrollIntoView()
-                }
-            }
-        }
-        if (chatTopIsVisible && isMounted() && !loading) {
-            console.info('Is visible top')
-            if (client && hasMore && id) {
-                loadMore()
-                setPage(page + 1)
-            }
-        }
-    }, [chatTopIsVisible, client, filterMessages, hasMore, id, isMounted, loading, page, pageSize])
+
 
     if (loading) return <CircularProgress />
 
@@ -106,7 +87,7 @@ const ChatDetail: NextPage = () => {
                 <List style={{ maxHeight: '80vh', height: '80vh', overflowY: 'auto' }}>
                     <ListItem style={{ float: "left", clear: "both" }} ref={chatTopRef}></ListItem>
                     <MessageList messages={messages} />
-                    <ListItem style={{ float: "left", clear: "both" }} ref={chatRef}></ListItem>
+                    <ListItem style={{ float: "left", clear: "both" }} ref={chatBottomRef}></ListItem>
                 </List>
             </Grid>
             <Grid item xs={12}>

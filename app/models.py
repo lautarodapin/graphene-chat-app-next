@@ -32,4 +32,4 @@ class ChatMessage(TimeModel, models.Model):
     message = models.TextField()
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["created_at"]

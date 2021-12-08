@@ -24,7 +24,7 @@ class Query(ObjectType):
 
     def resolve_history(self, info: ResolveInfo, chat_room, filters):
         queryset = (
-            ChatMessage.objects.filter(chat=chat_room)
+            ChatMessage.objects.filter(chat=chat_room).order_by('-created_at')
         )
         return ChatMessageListType(
             items=reversed(filters.paginate(queryset)),

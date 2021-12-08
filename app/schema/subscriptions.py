@@ -36,9 +36,9 @@ class OnNewChatMessage(channels_graphql_ws.Subscription):
         #     and new_msg_sender == info.context.user.username
         # ):
         #     return OnNewChatMessage.SKIP
-        message: ChatMessage = ChatMessage.objects.select_related('user', 'chat').get(id=new_msg_id)
+        message: ChatMessage = ChatMessage.objects.select_related('created_by', 'chat').get(id=new_msg_id)
         return OnNewChatMessage(
-            chat_room=message.chat, message=message, sender=message.user
+            chat_room=message.chat, message=message, sender=message.created_by
         )
 
     @classmethod
