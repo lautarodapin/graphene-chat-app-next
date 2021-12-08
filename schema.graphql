@@ -47,34 +47,34 @@ input FiltersInput {
 
 scalar GenericScalar
 
-input JoinChatMutationInput {
-  chatRoom: Int!
+input JoinChatInput {
+  chatRoom: String!
   join: Boolean
   clientMutationId: String
 }
 
-type JoinChatMutationPayload {
-  chatRoom: Int!
+type JoinChatPayload {
+  chatRoom: String!
   join: Boolean
   errors: [ErrorType]
   clientMutationId: String
 }
 
-type LoginMutation {
+type Login {
   user: UserType
   errors: [ErrorType]
 }
 
-type LogoutMutation {
+type Logout {
   ok: Boolean!
 }
 
 type Mutation {
-  sendChatMessage(input: SendChatMessageMutationInput!): SendChatMessageMutationPayload
-  login(password: String!, username: String!): LoginMutation
-  logout: LogoutMutation
-  register(input: RegisterMutationInput!): RegisterMutationPayload
-  joinChat(input: JoinChatMutationInput!): JoinChatMutationPayload
+  sendChatMessage(input: SendChatMessageInput!): SendChatMessagePayload
+  login(password: String!, username: String!): Login
+  logout: Logout
+  register(input: RegisterInput!): RegisterPayload
+  joinChat(input: JoinChatInput!): JoinChatPayload
   tokenAuth(username: String!, password: String!): ObtainJSONWebToken
   verifyToken(token: String!): Verify
   refreshToken(token: String!): Refresh
@@ -109,7 +109,7 @@ type Refresh {
   payload: GenericScalar
 }
 
-input RegisterMutationInput {
+input RegisterInput {
   username: String!
   password1: String!
   password2: String!
@@ -117,20 +117,20 @@ input RegisterMutationInput {
   clientMutationId: String
 }
 
-type RegisterMutationPayload {
+type RegisterPayload {
   user: UserType
   errors: [ErrorType]
   clientMutationId: String
 }
 
-input SendChatMessageMutationInput {
+input SendChatMessageInput {
   message: String!
   chat: ID!
   id: ID
   clientMutationId: String
 }
 
-type SendChatMessageMutationPayload {
+type SendChatMessagePayload {
   chatMessage: ChatMessageType
   errors: [ErrorType]
   clientMutationId: String

@@ -1,0 +1,49 @@
+fragment MinimalMessage on ChatMessageType {
+  id
+  createdAt
+  modAt
+  message
+  chat {
+    id
+  }
+  createdBy {
+    id
+  }
+  modBy {
+    id
+  }
+}
+
+fragment Message on ChatMessageType {
+  ...MinimalMessage
+  createdBy {
+    ...MinimalUser
+  }
+  modBy {
+    ...MinimalUser
+  }
+  chat {
+    ...MinimalChat
+  }
+}
+
+query History($chatRoom: ID!, $filters: FiltersInput) {
+  history(chatRoom: $chatRoom, filters: $filters) {
+    items {
+      ...Message
+    }
+    count
+    hasMore
+  }
+}
+
+mutation SendChatMessage($input: SendChatMessageInput!) {
+  sendChatMessage(input: $input) {
+    chatMessage {
+      ...Message
+    }
+    errors {
+      ...Error
+    }
+  }
+}

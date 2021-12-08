@@ -22,7 +22,7 @@ class SendChatMessageForm(TimestampModelForm):
 
 
 class JoinChatForm(UserMixinForm, forms.Form):
-    chat_room = forms.IntegerField(required=True)
+    chat_room = forms.CharField(required=True)
     join = forms.BooleanField(required=False)
 
     def clean(self):

@@ -1,0 +1,55 @@
+fragment MinimalChat on ChatRoomType {
+  id
+  chatName
+}
+
+fragment Chat on ChatRoomType {
+  ...MinimalChat
+  createdAt
+  modAt
+  createdBy {
+    ...MinimalUser
+  }
+  modBy {
+    ...MinimalUser
+  }
+  activeUsers {
+    ...MinimalUser
+  }
+}
+
+query Chat($id: ID!) {
+  chat(id: $id) {
+    ...Chat
+  }
+}
+
+query Chats {
+  chats {
+    ...MinimalChat
+  }
+}
+
+mutation JoinChat($input: JoinChatInput!) {
+  joinChat(input: $input) {
+    chatRoom
+    join
+    errors {
+      ...Error
+    }
+  }
+}
+
+subscription OnNewChatMessage($chatRoom: ID!) {
+  onNewChatMessage(chatRoom: $chatRoom) {
+    sender {
+      ...MinimalUser
+    }
+    chatRoom {
+      ...MinimalChat
+    }
+    message {
+      ...Message
+    }
+  }
+}

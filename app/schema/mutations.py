@@ -21,11 +21,11 @@ import graphql_jwt
 from app.forms import JoinChatForm, SendChatMessageForm, UserCreationForm
 from core.graphql import RequestMixin
 from graphql.execution.base import ResolveInfo
-class RegisterMutation(DjangoModelFormMutation):
+class Register(DjangoModelFormMutation):
     class Meta:
         form_class = UserCreationForm
 
-class LoginMutation(graphene.Mutation):
+class Login(graphene.Mutation):
     user = graphene.Field(UserType)
     errors = graphene.List(ErrorType)
 
@@ -37,17 +37,17 @@ class LoginMutation(graphene.Mutation):
     def mutate(self , info: ResolveInfo, username, password):
         form = DjangoAuthenticationForm(data={'username': username, 'password': password})
         if not form.is_valid():
-            return LoginMutation(errors=ErrorType.from_errors(form.errors))
+            return Login(errors=ErrorType.from_errors(form.errors))
         user = form.get_user()
         info.context.scope["session"] = info.context.session
         async_to_sync(login)(info.context.scope, user)
         django_login(info.context, user=user)
         info.context.session.save()
 
-        return LoginMutation(ok=True, user=user)
+        return Login(ok=True, user=user)
 
 
-class LogoutMutation(graphene.Mutation):
+class Logout(graphene.Mutation):
     ok = Boolean(required=True)
 
     @staticmethod
@@ -58,26 +58,26 @@ class LogoutMutation(graphene.Mutation):
             async_to_sync(logout)(info.context.scope)
             django_logout(info.context)
             info.context.session.save()
-            return LogoutMutation(ok=True)
-        return LogoutMutation(ok=False)
+            return Logout(ok=True)
+        return Logout(ok=False)
 
 
-class SendChatMessageMutation(RequestMixin, DjangoModelFormMutation):
+class SendChatMessage(RequestMixin, DjangoModelFormMutation):
     class Meta:
         form_class = SendChatMessageForm
 
 
-class JoinChatMutation(RequestMixin, DjangoFormMutation):
+class JoinChat(RequestMixin, DjangoFormMutation):
     class Meta:
         form_class = JoinChatForm
 
 
 class Mutation(ObjectType):
-    send_chat_message = SendChatMessageMutation.Field()
-    login = LoginMutation.Field()
-    logout = LogoutMutation.Field()
-    register = RegisterMutation.Field()
-    join_chat = JoinChatMutation.Field()
+    send_chat_message = SendChatMessage.Field()
+    login = Login.Field()
+    logout = Logout.Field()
+    register = Register.Field()
+    join_chat = JoinChat.Field()
 
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
