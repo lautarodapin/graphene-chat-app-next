@@ -5,7 +5,7 @@ import React, { FC } from 'react';
 import { defaultGridProps } from './form';
 
 type Props = {
-    gridProps?: GridProps;
+    gridProps?: GridProps | boolean;
 } & Pick<TextFieldProps, 'name' | 'disabled' | 'inputMode' | 'fullWidth' | 'label' | 'type'>
 
 export const TextInput: FC<Props> = ({

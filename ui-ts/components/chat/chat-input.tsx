@@ -41,8 +41,8 @@ export const ChatInput = () => {
                     <Form>
                         <Grid item={true} xs={12}>
                             <Grid container={true} spacing={2} alignItems='flex-end'>
-                                <TextInput name='message' gridProps={{ xs: 11 }} />
-                                <Grid xs={1} justifyContent='right'>
+                                <TextInput name='message' gridProps={{ xs: 11 }} fullWidth={true} />
+                                <Grid item={true} xs={1}>
                                     {isSubmitting
                                         ? <CircularProgress />
                                         : <Fab color="primary" aria-label="add" onClick={submitForm}><SendIcon /></Fab>
