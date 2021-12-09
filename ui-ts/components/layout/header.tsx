@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
@@ -30,11 +30,9 @@ export const Header: FC = () => {
                     </Container>
                     {user && (
                         <>
-                            <Link href="/users/logout">
-                                <Button color='inherit' disabled>
-                                    {user.username}
-                                </Button>
-                            </Link>
+                            <Typography color='whitesmoke'>
+                                {user.username.toUpperCase()}
+                            </Typography>
                             <Link href="/users/logout">
                                 <Button color='inherit'>
                                     Logout
