@@ -44,6 +44,7 @@ export type ChatRoomType = {
   createdAt: Scalars['DateTime'];
   createdBy?: Maybe<UserType>;
   id: Scalars['ID'];
+  lastMessage?: Maybe<ChatMessageType>;
   messages: Array<ChatMessageType>;
   modAt: Scalars['DateTime'];
   modBy?: Maybe<UserType>;
@@ -238,21 +239,21 @@ export type Verify = {
   payload?: Maybe<Scalars['GenericScalar']>;
 };
 
-export type MinimalChatFragment = { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined };
+export type MinimalChatFragment = { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined };
 
-export type ChatFragment = { __typename?: 'ChatRoomType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }> };
+export type ChatFragment = { __typename?: 'ChatRoomType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }>, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined };
 
 export type ChatQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type ChatQuery = { __typename?: 'Query', chat?: { __typename?: 'ChatRoomType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }> } | null | undefined };
+export type ChatQuery = { __typename?: 'Query', chat?: { __typename?: 'ChatRoomType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }>, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } | null | undefined };
 
 export type ChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined }> | null | undefined };
+export type ChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined }> | null | undefined };
 
 export type JoinChatMutationVariables = Exact<{
   input: JoinChatInput;
@@ -266,11 +267,11 @@ export type OnNewChatMessageSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnNewChatMessageSubscription = { __typename?: 'Subscription', onNewChatMessage?: { __typename?: 'OnNewChatMessage', sender: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }, chatRoom: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined }, message: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined } } } | null | undefined };
+export type OnNewChatMessageSubscription = { __typename?: 'Subscription', onNewChatMessage?: { __typename?: 'OnNewChatMessage', sender: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }, chatRoom: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined }, message: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } } } | null | undefined };
 
 export type MinimalMessageFragment = { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, chat: { __typename?: 'ChatRoomType', id: string }, createdBy?: { __typename?: 'UserType', id: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string } | null | undefined };
 
-export type MessageFragment = { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined } };
+export type MessageFragment = { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } };
 
 export type HistoryQueryVariables = Exact<{
   chatRoom: Scalars['ID'];
@@ -278,14 +279,14 @@ export type HistoryQueryVariables = Exact<{
 }>;
 
 
-export type HistoryQuery = { __typename?: 'Query', history?: { __typename?: 'ChatMessageListType', count: number, hasMore: boolean, items: Array<{ __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined } }> } | null | undefined };
+export type HistoryQuery = { __typename?: 'Query', history?: { __typename?: 'ChatMessageListType', count: number, hasMore: boolean, items: Array<{ __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } }> } | null | undefined };
 
 export type SendChatMessageMutationVariables = Exact<{
   input: SendChatMessageInput;
 }>;
 
 
-export type SendChatMessageMutation = { __typename?: 'Mutation', sendChatMessage?: { __typename?: 'SendChatMessagePayload', chatMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined } } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
+export type SendChatMessageMutation = { __typename?: 'Mutation', sendChatMessage?: { __typename?: 'SendChatMessagePayload', chatMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
 
 export type MinimalUserFragment = { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string };
 
@@ -331,38 +332,6 @@ export type TokenAuthMutationVariables = Exact<{
 
 export type TokenAuthMutation = { __typename?: 'Mutation', tokenAuth?: { __typename?: 'ObtainJSONWebToken', token?: string | null | undefined } | null | undefined };
 
-export const MinimalChatFragmentDoc = gql`
-    fragment MinimalChat on ChatRoomType {
-  id
-  chatName
-}
-    `;
-export const MinimalUserFragmentDoc = gql`
-    fragment MinimalUser on UserType {
-  id
-  username
-  firstName
-  lastName
-  email
-}
-    `;
-export const ChatFragmentDoc = gql`
-    fragment Chat on ChatRoomType {
-  ...MinimalChat
-  createdAt
-  modAt
-  createdBy {
-    ...MinimalUser
-  }
-  modBy {
-    ...MinimalUser
-  }
-  activeUsers {
-    ...MinimalUser
-  }
-}
-    ${MinimalChatFragmentDoc}
-${MinimalUserFragmentDoc}`;
 export const MinimalMessageFragmentDoc = gql`
     fragment MinimalMessage on ChatMessageType {
   id
@@ -380,6 +349,45 @@ export const MinimalMessageFragmentDoc = gql`
   }
 }
     `;
+export const MinimalUserFragmentDoc = gql`
+    fragment MinimalUser on UserType {
+  id
+  username
+  firstName
+  lastName
+  email
+}
+    `;
+export const MinimalChatFragmentDoc = gql`
+    fragment MinimalChat on ChatRoomType {
+  id
+  chatName
+  lastMessage {
+    ...MinimalMessage
+    createdBy {
+      ...MinimalUser
+    }
+  }
+}
+    ${MinimalMessageFragmentDoc}
+${MinimalUserFragmentDoc}`;
+export const ChatFragmentDoc = gql`
+    fragment Chat on ChatRoomType {
+  ...MinimalChat
+  createdAt
+  modAt
+  createdBy {
+    ...MinimalUser
+  }
+  modBy {
+    ...MinimalUser
+  }
+  activeUsers {
+    ...MinimalUser
+  }
+}
+    ${MinimalChatFragmentDoc}
+${MinimalUserFragmentDoc}`;
 export const MessageFragmentDoc = gql`
     fragment Message on ChatMessageType {
   ...MinimalMessage

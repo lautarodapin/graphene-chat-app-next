@@ -41,7 +41,6 @@ class Query(ObjectType):
         return ChatRoom.objects.get(id=id)
 
     def resolve_chats(self, info: ResolveInfo):
-        raise ValidationError('error ajsldkajskld')
         return ChatRoom.objects.all()
 
     def resolve_users(self, info: ResolveInfo):

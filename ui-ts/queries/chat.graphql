@@ -1,6 +1,12 @@
 fragment MinimalChat on ChatRoomType {
   id
   chatName
+  lastMessage {
+    ...MinimalMessage
+    createdBy {
+      ...MinimalUser
+    }
+  }
 }
 
 fragment Chat on ChatRoomType {

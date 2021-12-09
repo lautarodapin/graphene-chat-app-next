@@ -25,8 +25,13 @@ class UserType(DjangoObjectType):
 
 
 class ChatRoomType(DjangoObjectType):
+    last_message = graphene.Field(ChatMessageType)
+
     class Meta:
         model = ChatRoom
+
+    def resolve_last_message(self, info):
+        return self.messages.last()
 
 class FiltersInput(graphene.InputObjectType):
     page_size = graphene.Int(default_value=10)
