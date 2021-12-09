@@ -4,7 +4,7 @@ from graphene.types.objecttype import ObjectType
 from graphene import String, List, Field
 from graphene.types.structures import NonNull
 from app.models import ChatMessage, ChatRoom, User
-
+from django.core.exceptions import ValidationError
 from app.schema.types import (
     ChatMessageType, ChatRoomType, FiltersInput, UserType,
     ChatMessageListType
@@ -41,6 +41,7 @@ class Query(ObjectType):
         return ChatRoom.objects.get(id=id)
 
     def resolve_chats(self, info: ResolveInfo):
+        raise ValidationError('error ajsldkajskld')
         return ChatRoom.objects.all()
 
     def resolve_users(self, info: ResolveInfo):

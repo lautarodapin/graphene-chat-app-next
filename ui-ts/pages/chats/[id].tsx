@@ -51,10 +51,8 @@ const ChatDetail: NextPage = () => {
         }
     }, [newMessage])
 
-    useEffect(() => {
-        if (firstMount.current) chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [firstMount, chatBottomRef.current])
 
+    /* TODO: initial scroll to bpotoom not working*/
     useEffect(() => {
         if (shouldLoadMore && !loading && hasMore && firstMount.current === false) {
             refetch({ chatRoom: id, filters: { page: page + 1, pageSize } })
@@ -69,7 +67,7 @@ const ChatDetail: NextPage = () => {
                 if (firstMount.current) firstMount.current = false
                 setFilterMessages(data.history.items)
                 if (firstMount.current) {
-                    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
+                    process.nextTick(() => chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }))
                 }
             }
         }
