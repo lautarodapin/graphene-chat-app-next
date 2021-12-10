@@ -14,6 +14,7 @@ import { Container } from '@mui/material';
 import { ApolloProvider } from "@apollo/client";
 import { client } from "../apollo-client";
 import { UserProvider } from '../contexts/user';
+import { ChatDrawer } from '../components/chat/chat-drawer';
 // import { UserProvider } from '../contexts/user';
 
 // Client-side cache, shared for the whole session of the user in the browser.
@@ -35,9 +36,11 @@ function MyApp(props: Props) {
                         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
                         <CssBaseline />
                         <Header />
-                        <Container maxWidth='lg' style={{ marginTop: '20px' }}>
-                            <Component {...pageProps} />
-                        </Container>
+                        <ChatDrawer>
+                            <Container maxWidth='lg' style={{ marginTop: '20px' }}>
+                                <Component {...pageProps} />
+                            </Container>
+                        </ChatDrawer>
                     </UserProvider>
                 </ThemeProvider>
             </ApolloProvider>

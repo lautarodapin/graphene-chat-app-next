@@ -13,7 +13,7 @@ export const Header: FC = () => {
 
     return (
         <>
-            <AppBar position="fixed">
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
                     <Container
                         maxWidth="lg"
@@ -21,7 +21,7 @@ export const Header: FC = () => {
                     >
                         Chat app
                         {user && (
-                            <Link href="/chats">
+                            <Link href="/chats" passHref={true}>
                                 <Button color='inherit'>
                                     Chats
                                 </Button>
@@ -33,7 +33,7 @@ export const Header: FC = () => {
                             <Typography color='whitesmoke'>
                                 {user.username.toUpperCase()}
                             </Typography>
-                            <Link href="/users/logout">
+                            <Link href="/users/logout" passHref={true}>
                                 <Button color='inherit'>
                                     Logout
                                 </Button>
@@ -41,16 +41,14 @@ export const Header: FC = () => {
                         </>
                     )}
                     {!user && (
-                        <Link href="/users/login">
+                        <Link href="/users/login" passHref={true}>
                             <Button color='inherit'>
                                 Login
                             </Button>
                         </Link>
-
                     )}
                 </Toolbar>
             </AppBar>
-            <Toolbar />
         </>
     );
 };
