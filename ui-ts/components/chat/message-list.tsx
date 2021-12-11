@@ -1,7 +1,8 @@
-import { Grid, ListItem, ListItemText } from "@mui/material"
+import { Grid, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import { FC } from "react"
 import { useUser } from "../../contexts/user"
 import { MessageFragment } from "../../generated/graphql"
+import { humanizeDatetime } from '../../utils/index';
 
 interface Props {
     messages: MessageFragment[]
@@ -14,23 +15,18 @@ export const MessageList: FC<Props> = ({ messages, ...props }) => {
 
     return (
         <>
-            {messages.map(message => {
-                const align = user.id === message.createdBy?.id ? 'left' : 'right'
+            {messages.map(({ id, message, createdAt, createdBy }) => {
+                const isYou = createdBy?.id === user.id
                 return (
-                    <ListItem key={message.id}>
-                        <Grid container>
-                            <Grid item xs={12}>
-                                <ListItemText
-                                    primaryTypographyProps={{ align }}
-                                    primary={`${message.createdBy?.username}: ${message.message}`}>
-                                </ListItemText>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <ListItemText primaryTypographyProps={{ align }} secondary={message.createdAt}></ListItemText>
-                            </Grid>
-                        </Grid>
+                    <ListItem key={id}>
+                        <ListItemAvatar><Avatar /></ListItemAvatar>
+                        <ListItemText
+                            primary={`${isYou ? 'You' : createdBy?.username || 'Unknown'}: ${message}`}
+                            secondary={humanizeDatetime(createdAt)}
+                        >
+                        </ListItemText>
                     </ListItem>
-                )
+                );
             })}
         </>
     )
