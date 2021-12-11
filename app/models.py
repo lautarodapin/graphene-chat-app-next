@@ -19,12 +19,18 @@ class User(AbstractUser):
     class Meta:
         ordering = ["username"]
 
+    def __str__(self) -> str:
+        return self.username if self.username else self.email
+
 
 class Chat(TimeModel, models.Model):
     chat_name = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         ordering = ["chat_name"]
+
+    def __str__(self) -> str:
+        return self.chat_name
 
 
 class Message(TimeModel, models.Model):
@@ -33,3 +39,6 @@ class Message(TimeModel, models.Model):
 
     class Meta:
         ordering = ["created_at"]
+        
+    def __str__(self) -> str:
+        return f'{self.chat.chat_name} - {self.message} - {self.created_by} - {self.created_at}'
