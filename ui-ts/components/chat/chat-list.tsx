@@ -7,15 +7,9 @@ export const ChatList = () => {
 
     return (
         <List>
-            {!!chats?.length && chats?.map((chat, index) => {
-                const isLast = chats.length - 1 === index
-                return (
-                    <>
-                        <ChatCard chat={chat} />
-                        {!isLast && <Divider variant='inset' component='li' />}
-                    </>
-                )
-            })}
+            {!!chats?.length && chats?.map((chat, index) => (
+                <ChatCard key={chat.id} chat={chat} />
+            ))}
         </List>
     )
 }
