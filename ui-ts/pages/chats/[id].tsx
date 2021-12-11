@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useQuery, useMutation, useSubscription, NetworkStatus } from "@apollo/client"
 import { useRouter } from "next/dist/client/router"
-import { CircularProgress, Grid, List, ListItem, ListItemText, Paper, Skeleton } from "@mui/material"
+import { Grid, List, ListItem, Skeleton } from "@mui/material"
 import { ChatInput } from "../../components/chat/chat-input"
 import { MessageList } from "../../components/chat/message-list"
-import { MessageFragment, OnNewChatMessageDocument, useHistoryLazyQuery, useHistoryQuery, useJoinChatMutation, useOnNewChatMessageSubscription } from "../../generated/graphql"
+import { MessageFragment, useHistoryLazyQuery, useJoinChatMutation, useOnNewChatMessageSubscription } from "../../generated/graphql"
 import { NextPage } from "next"
 import { useOnScreen } from "../../hooks/use-on-screen"
-import { useIsMounted } from "../../hooks/use-is-mounted"
 
 
 const ChatDetail: NextPage = () => {

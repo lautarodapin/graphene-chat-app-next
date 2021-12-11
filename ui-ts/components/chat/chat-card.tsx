@@ -1,7 +1,7 @@
-import { ListItem, ListItemAvatar, Avatar, ListItemText, Typography, Divider, Theme } from '@mui/material';
+import { ListItem, ListItemAvatar, Avatar, ListItemText, Typography, Theme } from '@mui/material';
 import { makeStyles, createStyles } from '@mui/styles';
 import { FC, useState } from 'react';
-import { MinimalChatFragment, useOnNewChatMessageSubscription, MinimalMessageFragment, MessageFragment } from '../../generated/graphql';
+import { MinimalChatFragment, useOnNewChatMessageSubscription, MessageFragment } from '../../generated/graphql';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 

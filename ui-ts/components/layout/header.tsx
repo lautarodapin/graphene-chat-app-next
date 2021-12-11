@@ -1,12 +1,10 @@
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
-import { styled } from "@mui/system";
 import Link from 'next/link'
 import { FC } from "react";
 import { useUser } from "../../contexts/user";
-import theme from "../../styles/theme";
 
 export const Header: FC = () => {
     const { user } = useUser()
