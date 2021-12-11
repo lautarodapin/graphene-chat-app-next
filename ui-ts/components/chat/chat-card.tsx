@@ -1,26 +1,35 @@
 import { ListItem, ListItemAvatar, Avatar, ListItemText, Typography, Divider, Theme } from '@mui/material';
 import { makeStyles, createStyles } from '@mui/styles';
-import { FC } from 'react';
-import { MinimalChatFragment } from '../../generated/graphql';
+import { FC, useState } from 'react';
+import { MinimalChatFragment, useOnNewChatMessageSubscription, MinimalMessageFragment, MessageFragment } from '../../generated/graphql';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ChatDetailQueryString } from '../../pages/chats/[id]';
 
 type Props = {
     chat: MinimalChatFragment
 }
 
-
 export const ChatCard: FC<Props> = ({ chat }) => {
     const classes = useStyles();
     const router = useRouter();
-    const { id, chatName, lastMessage } = chat;
+    const [lastMessage, setLastMessage] = useState<Pick<MessageFragment, 'createdBy' | 'id' | 'message' | 'createdAt'> | undefined | null>(chat.lastMessage);
+    const { id, chatName } = chat;
     const pathname = '/chats/[id]'
     const path = `/chats/${id}`;
-    const query: ChatDetailQueryString = { page: 1, pageSize: 10, initState: true }
+    const query = { name: chatName };
+    useOnNewChatMessageSubscription({
+        variables: { chatRoom: id },
+        fetchPolicy: 'network-only',
+        onSubscriptionData: ({ subscriptionData }) => {
+            if (subscriptionData.data?.onNewChatMessage) {
+                setLastMessage(subscriptionData.data.onNewChatMessage.message);
+                console.log('new message entering', subscriptionData.data?.onNewChatMessage)
+            }
+        }
+    })
 
     const isCurrentPath = router.asPath.includes(path);
-
+    console.log(chatName, lastMessage?.message)
     return (
         <Link key={id} href={pathname} as={{ pathname: path, query }} passHref={true}>
             <ListItem className={`${classes.root} ${isCurrentPath && classes.selected}`}>
@@ -29,8 +38,12 @@ export const ChatCard: FC<Props> = ({ chat }) => {
                     primary={chatName}
                     secondary={
                         <>
-                            <Typography>{lastMessage?.createdBy?.username || '-'}</Typography>
-                            {' - ' + lastMessage?.message}
+                            {lastMessage && lastMessage.createdBy && (
+                                <>
+                                    <Typography component='span' variant='body2'>{lastMessage?.createdBy?.username}</Typography>
+                                    {' - ' + lastMessage?.message}
+                                </>
+                            )}
                         </>
                     }
                 />
