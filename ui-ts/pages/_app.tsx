@@ -15,12 +15,17 @@ import { ApolloProvider } from "@apollo/client";
 import { client } from "../apollo-client";
 import { UserProvider } from '../contexts/user';
 import { ChatDrawer } from '../components/chat/chat-drawer';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime';
+
 // import { UserProvider } from '../contexts/user';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 type Props = AppProps & { emotionCache: EmotionCache }
-
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 function MyApp(props: Props) {
     const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -35,11 +40,8 @@ function MyApp(props: Props) {
                     <UserProvider>
                         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
                         <CssBaseline />
-                        {/* <Header /> */}
                         <ChatDrawer>
-                            {/* <Container maxWidth='lg' style={{ marginTop: '20px' }}> */}
                             <Component {...pageProps} />
-                            {/* </Container> */}
                         </ChatDrawer>
                     </UserProvider>
                 </ThemeProvider>
