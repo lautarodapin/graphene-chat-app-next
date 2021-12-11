@@ -35,11 +35,11 @@ function MyApp(props: Props) {
                     <UserProvider>
                         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
                         <CssBaseline />
-                        <Header />
+                        {/* <Header /> */}
                         <ChatDrawer>
-                            <Container maxWidth='lg' style={{ marginTop: '20px' }}>
-                                <Component {...pageProps} />
-                            </Container>
+                            {/* <Container maxWidth='lg' style={{ marginTop: '20px' }}> */}
+                            <Component {...pageProps} />
+                            {/* </Container> */}
                         </ChatDrawer>
                     </UserProvider>
                 </ThemeProvider>
