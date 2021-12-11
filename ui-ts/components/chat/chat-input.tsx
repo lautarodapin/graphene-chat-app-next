@@ -3,15 +3,15 @@ import { Formik, FormikErrors } from 'formik'
 import { TextInput } from '../forms/text-input'
 import SendIcon from '@mui/icons-material/Send';
 import { Form } from '../forms/form'
-import { useSendChatMessageMutation, SendChatMessageInput } from '../../generated/graphql'
+import { useSendMessageMutation, SendMessageInput } from '../../generated/graphql'
 import { useRouter } from 'next/router';
 
-type FormValues = Pick<SendChatMessageInput, 'message'>
+type FormValues = Pick<SendMessageInput, 'message'>
 
 export const ChatInput = () => {
     const router = useRouter()
     const chatRoomId = router.query.id as string
-    const [sendMessage] = useSendChatMessageMutation()
+    const [sendMessage] = useSendMessageMutation()
     const defaultInitial: FormValues = {
         message: '',
     }

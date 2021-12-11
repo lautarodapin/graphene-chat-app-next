@@ -5,7 +5,7 @@ from graphene.types.structures import NonNull
 from graphene_django import DjangoObjectType
 from django.core.paginator import Paginator
 
-from app.models import ChatMessage, ChatRoom, User
+from app.models import Message, Chat, User
 
 
 class PaginationType(graphene.Interface):
@@ -13,9 +13,9 @@ class PaginationType(graphene.Interface):
     has_more = graphene.Boolean()
 
 
-class ChatMessageType(DjangoObjectType):
+class MessageType(DjangoObjectType):
     class Meta:
-        model = ChatMessage
+        model = Message
         interfaces = [PaginationType,]
 
 
@@ -24,11 +24,11 @@ class UserType(DjangoObjectType):
         model = User
 
 
-class ChatRoomType(DjangoObjectType):
-    last_message = graphene.Field(ChatMessageType)
+class ChatType(DjangoObjectType):
+    last_message = graphene.Field(MessageType)
 
     class Meta:
-        model = ChatRoom
+        model = Chat
 
     def resolve_last_message(self, info):
         return self.messages.last()
@@ -48,7 +48,7 @@ class FiltersInput(graphene.InputObjectType):
         return self.page.has_next()
 
 
-class ChatMessageListType(graphene.ObjectType):
-    items = graphene.List(NonNull(ChatMessageType), required=True)
+class MessageListType(graphene.ObjectType):
+    items = graphene.List(NonNull(MessageType), required=True)
     count = graphene.Int(required=True)
     has_more = graphene.Boolean(required=True)

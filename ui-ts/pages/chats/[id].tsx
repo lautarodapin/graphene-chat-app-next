@@ -3,7 +3,7 @@ import { useRouter } from "next/dist/client/router"
 import { Grid, List, ListItem, Skeleton } from "@mui/material"
 import { ChatInput } from "../../components/chat/chat-input"
 import { MessageList } from "../../components/chat/message-list"
-import { MessageFragment, useHistoryLazyQuery, useJoinChatMutation, useOnNewChatMessageSubscription } from "../../generated/graphql"
+import { MessageFragment, useHistoryLazyQuery, useJoinChatMutation, useOnNewMessageSubscription } from "../../generated/graphql"
 import { NextPage } from "next"
 import { useOnScreen } from "../../hooks/use-on-screen"
 
@@ -16,7 +16,7 @@ const ChatDetail: NextPage = () => {
     const initState = useRef(true)
     const hasMore = useRef(false)
     const [getHistory, { data, fetchMore, loading, error, refetch, networkStatus }] = useHistoryLazyQuery({
-        variables: { chatRoom: id, filters: { page: page.current, pageSize: pageSize.current } },
+        variables: { chat: id, filters: { page: page.current, pageSize: pageSize.current } },
         fetchPolicy: 'network-only',
         onCompleted: (data) => {
             if (!!data.history?.items.length) {
@@ -28,13 +28,13 @@ const ChatDetail: NextPage = () => {
             }
         }
     })
-    useOnNewChatMessageSubscription({
-        variables: { chatRoom: id },
+    useOnNewMessageSubscription({
+        variables: { chat: id },
         fetchPolicy: 'network-only',
         onSubscriptionData: ({ subscriptionData }) => {
-            if (subscriptionData.data?.onNewChatMessage) {
-                console.log('new message entering', subscriptionData.data?.onNewChatMessage)
-                setFilterMessages([subscriptionData.data?.onNewChatMessage.message])
+            if (subscriptionData.data?.onNewMessage) {
+                console.log('new message entering', subscriptionData.data?.onNewMessage)
+                setFilterMessages([subscriptionData.data?.onNewMessage.message])
                 if (!shouldLoadMore) process.nextTick(() => chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' }))
             }
         }
@@ -54,7 +54,7 @@ const ChatDetail: NextPage = () => {
         async ([entry]) => {
             if (entry.isIntersecting && hasMore.current && shouldLoadMore && !loading && !initState.current) {
                 observer.disconnect()
-                await refetch({ chatRoom: id, filters: { page: page.current, pageSize: pageSize.current } })
+                await refetch({ chat: id, filters: { page: page.current, pageSize: pageSize.current } })
             }
         },
     ), [refetch, id, loading, shouldLoadMore])
@@ -74,7 +74,7 @@ const ChatDetail: NextPage = () => {
     }, [messages, shouldLoadMore])
 
     useEffect(() => {
-        getHistory({ variables: { chatRoom: id, filters: { page: 1, pageSize: pageSize.current } } })
+        getHistory({ variables: { chat: id, filters: { page: 1, pageSize: pageSize.current } } })
     }, [getHistory, id, pageSize])
 
 

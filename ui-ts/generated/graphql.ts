@@ -17,35 +17,15 @@ export type Scalars = {
   GenericScalar: any;
 };
 
-export type ChatMessageListType = {
-  __typename?: 'ChatMessageListType';
-  count: Scalars['Int'];
-  hasMore: Scalars['Boolean'];
-  items: Array<ChatMessageType>;
-};
-
-export type ChatMessageType = PaginationType & {
-  __typename?: 'ChatMessageType';
-  chat: ChatRoomType;
-  count?: Maybe<Scalars['Int']>;
-  createdAt: Scalars['DateTime'];
-  createdBy?: Maybe<UserType>;
-  hasMore?: Maybe<Scalars['Boolean']>;
-  id: Scalars['ID'];
-  message: Scalars['String'];
-  modAt: Scalars['DateTime'];
-  modBy?: Maybe<UserType>;
-};
-
-export type ChatRoomType = {
-  __typename?: 'ChatRoomType';
+export type ChatType = {
+  __typename?: 'ChatType';
   activeUsers: Array<UserType>;
   chatName?: Maybe<Scalars['String']>;
   createdAt: Scalars['DateTime'];
   createdBy?: Maybe<UserType>;
   id: Scalars['ID'];
-  lastMessage?: Maybe<ChatMessageType>;
-  messages: Array<ChatMessageType>;
+  lastMessage?: Maybe<MessageType>;
+  messages: Array<MessageType>;
   modAt: Scalars['DateTime'];
   modBy?: Maybe<UserType>;
 };
@@ -62,14 +42,14 @@ export type FiltersInput = {
 };
 
 export type JoinChatInput = {
-  chatRoom: Scalars['String'];
+  chat: Scalars['String'];
   clientMutationId?: InputMaybe<Scalars['String']>;
   join?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type JoinChatPayload = {
   __typename?: 'JoinChatPayload';
-  chatRoom: Scalars['String'];
+  chat: Scalars['String'];
   clientMutationId?: Maybe<Scalars['String']>;
   errors?: Maybe<Array<Maybe<ErrorType>>>;
   join?: Maybe<Scalars['Boolean']>;
@@ -86,6 +66,26 @@ export type Logout = {
   ok: Scalars['Boolean'];
 };
 
+export type MessageListType = {
+  __typename?: 'MessageListType';
+  count: Scalars['Int'];
+  hasMore: Scalars['Boolean'];
+  items: Array<MessageType>;
+};
+
+export type MessageType = PaginationType & {
+  __typename?: 'MessageType';
+  chat: ChatType;
+  count?: Maybe<Scalars['Int']>;
+  createdAt: Scalars['DateTime'];
+  createdBy?: Maybe<UserType>;
+  hasMore?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  message: Scalars['String'];
+  modAt: Scalars['DateTime'];
+  modBy?: Maybe<UserType>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   joinChat?: Maybe<JoinChatPayload>;
@@ -93,7 +93,7 @@ export type Mutation = {
   logout?: Maybe<Logout>;
   refreshToken?: Maybe<Refresh>;
   register?: Maybe<RegisterPayload>;
-  sendChatMessage?: Maybe<SendChatMessagePayload>;
+  sendMessage?: Maybe<SendMessagePayload>;
   tokenAuth?: Maybe<ObtainJsonWebToken>;
   verifyToken?: Maybe<Verify>;
 };
@@ -120,8 +120,8 @@ export type MutationRegisterArgs = {
 };
 
 
-export type MutationSendChatMessageArgs = {
-  input: SendChatMessageInput;
+export type MutationSendMessageArgs = {
+  input: SendMessageInput;
 };
 
 
@@ -140,10 +140,10 @@ export type ObtainJsonWebToken = {
   token?: Maybe<Scalars['String']>;
 };
 
-export type OnNewChatMessage = {
-  __typename?: 'OnNewChatMessage';
-  chatRoom: ChatRoomType;
-  message: ChatMessageType;
+export type OnNewMessage = {
+  __typename?: 'OnNewMessage';
+  chat: ChatType;
+  message: MessageType;
   sender: UserType;
 };
 
@@ -154,10 +154,10 @@ export type PaginationType = {
 
 export type Query = {
   __typename?: 'Query';
-  chat?: Maybe<ChatRoomType>;
-  chats?: Maybe<Array<ChatRoomType>>;
+  chat?: Maybe<ChatType>;
+  chats?: Maybe<Array<ChatType>>;
   hello?: Maybe<Scalars['String']>;
-  history?: Maybe<ChatMessageListType>;
+  history?: Maybe<MessageListType>;
   user?: Maybe<UserType>;
   users?: Maybe<Array<UserType>>;
 };
@@ -169,7 +169,7 @@ export type QueryChatArgs = {
 
 
 export type QueryHistoryArgs = {
-  chatRoom: Scalars['ID'];
+  chat: Scalars['ID'];
   filters?: InputMaybe<FiltersInput>;
 };
 
@@ -194,33 +194,33 @@ export type RegisterPayload = {
   user?: Maybe<UserType>;
 };
 
-export type SendChatMessageInput = {
+export type SendMessageInput = {
   chat: Scalars['ID'];
   clientMutationId?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
   message: Scalars['String'];
 };
 
-export type SendChatMessagePayload = {
-  __typename?: 'SendChatMessagePayload';
-  chatMessage?: Maybe<ChatMessageType>;
+export type SendMessagePayload = {
+  __typename?: 'SendMessagePayload';
   clientMutationId?: Maybe<Scalars['String']>;
   errors?: Maybe<Array<Maybe<ErrorType>>>;
+  message?: Maybe<MessageType>;
 };
 
 export type Subscription = {
   __typename?: 'Subscription';
-  onNewChatMessage?: Maybe<OnNewChatMessage>;
+  onNewMessage?: Maybe<OnNewMessage>;
 };
 
 
-export type SubscriptionOnNewChatMessageArgs = {
-  chatRoom: Scalars['ID'];
+export type SubscriptionOnNewMessageArgs = {
+  chat: Scalars['ID'];
 };
 
 export type UserType = {
   __typename?: 'UserType';
-  activeRooms: Array<ChatRoomType>;
+  activeChats: Array<ChatType>;
   dateJoined: Scalars['DateTime'];
   email: Scalars['String'];
   firstName: Scalars['String'];
@@ -239,63 +239,63 @@ export type Verify = {
   payload?: Maybe<Scalars['GenericScalar']>;
 };
 
-export type MinimalChatFragment = { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined };
+export type MinimalChatFragment = { __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined };
 
-export type ChatFragment = { __typename?: 'ChatRoomType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }>, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined };
+export type ChatFragment = { __typename?: 'ChatType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }>, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined };
 
 export type ChatQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type ChatQuery = { __typename?: 'Query', chat?: { __typename?: 'ChatRoomType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }>, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } | null | undefined };
+export type ChatQuery = { __typename?: 'Query', chat?: { __typename?: 'ChatType', createdAt: any, modAt: any, id: string, chatName?: string | null | undefined, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, activeUsers: Array<{ __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }>, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } | null | undefined };
 
 export type ChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined }> | null | undefined };
+export type ChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined }> | null | undefined };
 
 export type JoinChatMutationVariables = Exact<{
   input: JoinChatInput;
 }>;
 
 
-export type JoinChatMutation = { __typename?: 'Mutation', joinChat?: { __typename?: 'JoinChatPayload', chatRoom: string, join?: boolean | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
+export type JoinChatMutation = { __typename?: 'Mutation', joinChat?: { __typename?: 'JoinChatPayload', chat: string, join?: boolean | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
 
-export type OnNewChatMessageSubscriptionVariables = Exact<{
-  chatRoom: Scalars['ID'];
+export type OnNewMessageSubscriptionVariables = Exact<{
+  chat: Scalars['ID'];
 }>;
 
 
-export type OnNewChatMessageSubscription = { __typename?: 'Subscription', onNewChatMessage?: { __typename?: 'OnNewChatMessage', sender: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }, chatRoom: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined }, message: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } } } | null | undefined };
+export type OnNewMessageSubscription = { __typename?: 'Subscription', onNewMessage?: { __typename?: 'OnNewMessage', sender: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string }, chat: { __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined }, message: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } } } | null | undefined };
 
-export type MinimalMessageFragment = { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, chat: { __typename?: 'ChatRoomType', id: string }, createdBy?: { __typename?: 'UserType', id: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string } | null | undefined };
+export type MinimalMessageFragment = { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, chat: { __typename?: 'ChatType', id: string }, createdBy?: { __typename?: 'UserType', id: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string } | null | undefined };
 
-export type MessageFragment = { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } };
+export type MessageFragment = { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } };
 
 export type HistoryQueryVariables = Exact<{
-  chatRoom: Scalars['ID'];
+  chat: Scalars['ID'];
   filters?: InputMaybe<FiltersInput>;
 }>;
 
 
-export type HistoryQuery = { __typename?: 'Query', history?: { __typename?: 'ChatMessageListType', count: number, hasMore: boolean, items: Array<{ __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } }> } | null | undefined };
+export type HistoryQuery = { __typename?: 'Query', history?: { __typename?: 'MessageListType', count: number, hasMore: boolean, items: Array<{ __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } }> } | null | undefined };
 
-export type SendChatMessageMutationVariables = Exact<{
-  input: SendChatMessageInput;
+export type SendMessageMutationVariables = Exact<{
+  input: SendMessageInput;
 }>;
 
 
-export type SendChatMessageMutation = { __typename?: 'Mutation', sendChatMessage?: { __typename?: 'SendChatMessagePayload', chatMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'ChatMessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatRoomType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
+export type SendMessageMutation = { __typename?: 'Mutation', sendMessage?: { __typename?: 'SendMessagePayload', message?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, modBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string, chatName?: string | null | undefined, lastMessage?: { __typename?: 'MessageType', id: string, createdAt: any, modAt: any, message: string, createdBy?: { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string } | null | undefined, chat: { __typename?: 'ChatType', id: string }, modBy?: { __typename?: 'UserType', id: string } | null | undefined } | null | undefined } } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
 
 export type MinimalUserFragment = { __typename?: 'UserType', id: string, username: string, firstName: string, lastName: string, email: string };
 
-export type UserFragment = { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeRooms: Array<{ __typename?: 'ChatRoomType', id: string }> };
+export type UserFragment = { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeChats: Array<{ __typename?: 'ChatType', id: string }> };
 
 export type UserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeRooms: Array<{ __typename?: 'ChatRoomType', id: string }> } | null | undefined };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeChats: Array<{ __typename?: 'ChatType', id: string }> } | null | undefined };
 
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -310,7 +310,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'Login', user?: { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeRooms: Array<{ __typename?: 'ChatRoomType', id: string }> } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
+export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'Login', user?: { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeChats: Array<{ __typename?: 'ChatType', id: string }> } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -322,7 +322,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register?: { __typename?: 'RegisterPayload', user?: { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeRooms: Array<{ __typename?: 'ChatRoomType', id: string }> } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
+export type RegisterMutation = { __typename?: 'Mutation', register?: { __typename?: 'RegisterPayload', user?: { __typename?: 'UserType', lastLogin?: any | null | undefined, isSuperuser: boolean, isStaff: boolean, isActive: boolean, dateJoined: any, id: string, username: string, firstName: string, lastName: string, email: string, activeChats: Array<{ __typename?: 'ChatType', id: string }> } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', messages: Array<string>, field: string } | null | undefined> | null | undefined } | null | undefined };
 
 export type TokenAuthMutationVariables = Exact<{
   username: Scalars['String'];
@@ -333,7 +333,7 @@ export type TokenAuthMutationVariables = Exact<{
 export type TokenAuthMutation = { __typename?: 'Mutation', tokenAuth?: { __typename?: 'ObtainJSONWebToken', token?: string | null | undefined } | null | undefined };
 
 export const MinimalMessageFragmentDoc = gql`
-    fragment MinimalMessage on ChatMessageType {
+    fragment MinimalMessage on MessageType {
   id
   createdAt
   modAt
@@ -359,7 +359,7 @@ export const MinimalUserFragmentDoc = gql`
 }
     `;
 export const MinimalChatFragmentDoc = gql`
-    fragment MinimalChat on ChatRoomType {
+    fragment MinimalChat on ChatType {
   id
   chatName
   lastMessage {
@@ -372,7 +372,7 @@ export const MinimalChatFragmentDoc = gql`
     ${MinimalMessageFragmentDoc}
 ${MinimalUserFragmentDoc}`;
 export const ChatFragmentDoc = gql`
-    fragment Chat on ChatRoomType {
+    fragment Chat on ChatType {
   ...MinimalChat
   createdAt
   modAt
@@ -389,7 +389,7 @@ export const ChatFragmentDoc = gql`
     ${MinimalChatFragmentDoc}
 ${MinimalUserFragmentDoc}`;
 export const MessageFragmentDoc = gql`
-    fragment Message on ChatMessageType {
+    fragment Message on MessageType {
   ...MinimalMessage
   createdBy {
     ...MinimalUser
@@ -412,7 +412,7 @@ export const UserFragmentDoc = gql`
   isStaff
   isActive
   dateJoined
-  activeRooms {
+  activeChats {
     id
   }
 }
@@ -495,7 +495,7 @@ export type ChatsQueryResult = Apollo.QueryResult<ChatsQuery, ChatsQueryVariable
 export const JoinChatDocument = gql`
     mutation JoinChat($input: JoinChatInput!) {
   joinChat(input: $input) {
-    chatRoom
+    chat
     join
     errors {
       ...Error
@@ -529,13 +529,13 @@ export function useJoinChatMutation(baseOptions?: Apollo.MutationHookOptions<Joi
 export type JoinChatMutationHookResult = ReturnType<typeof useJoinChatMutation>;
 export type JoinChatMutationResult = Apollo.MutationResult<JoinChatMutation>;
 export type JoinChatMutationOptions = Apollo.BaseMutationOptions<JoinChatMutation, JoinChatMutationVariables>;
-export const OnNewChatMessageDocument = gql`
-    subscription OnNewChatMessage($chatRoom: ID!) {
-  onNewChatMessage(chatRoom: $chatRoom) {
+export const OnNewMessageDocument = gql`
+    subscription OnNewMessage($chat: ID!) {
+  onNewMessage(chat: $chat) {
     sender {
       ...MinimalUser
     }
-    chatRoom {
+    chat {
       ...MinimalChat
     }
     message {
@@ -548,30 +548,30 @@ ${MinimalChatFragmentDoc}
 ${MessageFragmentDoc}`;
 
 /**
- * __useOnNewChatMessageSubscription__
+ * __useOnNewMessageSubscription__
  *
- * To run a query within a React component, call `useOnNewChatMessageSubscription` and pass it any options that fit your needs.
- * When your component renders, `useOnNewChatMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useOnNewMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useOnNewChatMessageSubscription({
+ * const { data, loading, error } = useOnNewMessageSubscription({
  *   variables: {
- *      chatRoom: // value for 'chatRoom'
+ *      chat: // value for 'chat'
  *   },
  * });
  */
-export function useOnNewChatMessageSubscription(baseOptions: Apollo.SubscriptionHookOptions<OnNewChatMessageSubscription, OnNewChatMessageSubscriptionVariables>) {
+export function useOnNewMessageSubscription(baseOptions: Apollo.SubscriptionHookOptions<OnNewMessageSubscription, OnNewMessageSubscriptionVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useSubscription<OnNewChatMessageSubscription, OnNewChatMessageSubscriptionVariables>(OnNewChatMessageDocument, options);
+        return Apollo.useSubscription<OnNewMessageSubscription, OnNewMessageSubscriptionVariables>(OnNewMessageDocument, options);
       }
-export type OnNewChatMessageSubscriptionHookResult = ReturnType<typeof useOnNewChatMessageSubscription>;
-export type OnNewChatMessageSubscriptionResult = Apollo.SubscriptionResult<OnNewChatMessageSubscription>;
+export type OnNewMessageSubscriptionHookResult = ReturnType<typeof useOnNewMessageSubscription>;
+export type OnNewMessageSubscriptionResult = Apollo.SubscriptionResult<OnNewMessageSubscription>;
 export const HistoryDocument = gql`
-    query History($chatRoom: ID!, $filters: FiltersInput) {
-  history(chatRoom: $chatRoom, filters: $filters) {
+    query History($chat: ID!, $filters: FiltersInput) {
+  history(chat: $chat, filters: $filters) {
     items {
       ...Message
     }
@@ -593,7 +593,7 @@ export const HistoryDocument = gql`
  * @example
  * const { data, loading, error } = useHistoryQuery({
  *   variables: {
- *      chatRoom: // value for 'chatRoom'
+ *      chat: // value for 'chat'
  *      filters: // value for 'filters'
  *   },
  * });
@@ -609,10 +609,10 @@ export function useHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Hi
 export type HistoryQueryHookResult = ReturnType<typeof useHistoryQuery>;
 export type HistoryLazyQueryHookResult = ReturnType<typeof useHistoryLazyQuery>;
 export type HistoryQueryResult = Apollo.QueryResult<HistoryQuery, HistoryQueryVariables>;
-export const SendChatMessageDocument = gql`
-    mutation SendChatMessage($input: SendChatMessageInput!) {
-  sendChatMessage(input: $input) {
-    chatMessage {
+export const SendMessageDocument = gql`
+    mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(input: $input) {
+    message {
       ...Message
     }
     errors {
@@ -622,32 +622,32 @@ export const SendChatMessageDocument = gql`
 }
     ${MessageFragmentDoc}
 ${ErrorFragmentDoc}`;
-export type SendChatMessageMutationFn = Apollo.MutationFunction<SendChatMessageMutation, SendChatMessageMutationVariables>;
+export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation, SendMessageMutationVariables>;
 
 /**
- * __useSendChatMessageMutation__
+ * __useSendMessageMutation__
  *
- * To run a mutation, you first call `useSendChatMessageMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSendChatMessageMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useSendMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMessageMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [sendChatMessageMutation, { data, loading, error }] = useSendChatMessageMutation({
+ * const [sendMessageMutation, { data, loading, error }] = useSendMessageMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useSendChatMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendChatMessageMutation, SendChatMessageMutationVariables>) {
+export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendMessageMutation, SendMessageMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SendChatMessageMutation, SendChatMessageMutationVariables>(SendChatMessageDocument, options);
+        return Apollo.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, options);
       }
-export type SendChatMessageMutationHookResult = ReturnType<typeof useSendChatMessageMutation>;
-export type SendChatMessageMutationResult = Apollo.MutationResult<SendChatMessageMutation>;
-export type SendChatMessageMutationOptions = Apollo.BaseMutationOptions<SendChatMessageMutation, SendChatMessageMutationVariables>;
+export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
+export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
+export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
 export const UserDocument = gql`
     query User {
   user {

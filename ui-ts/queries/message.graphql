@@ -1,4 +1,4 @@
-fragment MinimalMessage on ChatMessageType {
+fragment MinimalMessage on MessageType {
   id
   createdAt
   modAt
@@ -14,7 +14,7 @@ fragment MinimalMessage on ChatMessageType {
   }
 }
 
-fragment Message on ChatMessageType {
+fragment Message on MessageType {
   ...MinimalMessage
   createdBy {
     ...MinimalUser
@@ -27,8 +27,8 @@ fragment Message on ChatMessageType {
   }
 }
 
-query History($chatRoom: ID!, $filters: FiltersInput) {
-  history(chatRoom: $chatRoom, filters: $filters) {
+query History($chat: ID!, $filters: FiltersInput) {
+  history(chat: $chat, filters: $filters) {
     items {
       ...Message
     }
@@ -37,9 +37,9 @@ query History($chatRoom: ID!, $filters: FiltersInput) {
   }
 }
 
-mutation SendChatMessage($input: SendChatMessageInput!) {
-  sendChatMessage(input: $input) {
-    chatMessage {
+mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(input: $input) {
+    message {
       ...Message
     }
     errors {

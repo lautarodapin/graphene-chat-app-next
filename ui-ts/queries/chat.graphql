@@ -1,4 +1,4 @@
-fragment MinimalChat on ChatRoomType {
+fragment MinimalChat on ChatType {
   id
   chatName
   lastMessage {
@@ -9,7 +9,7 @@ fragment MinimalChat on ChatRoomType {
   }
 }
 
-fragment Chat on ChatRoomType {
+fragment Chat on ChatType {
   ...MinimalChat
   createdAt
   modAt
@@ -38,7 +38,7 @@ query Chats {
 
 mutation JoinChat($input: JoinChatInput!) {
   joinChat(input: $input) {
-    chatRoom
+    chat
     join
     errors {
       ...Error
@@ -46,12 +46,12 @@ mutation JoinChat($input: JoinChatInput!) {
   }
 }
 
-subscription OnNewChatMessage($chatRoom: ID!) {
-  onNewChatMessage(chatRoom: $chatRoom) {
+subscription OnNewMessage($chat: ID!) {
+  onNewMessage(chat: $chat) {
     sender {
       ...MinimalUser
     }
-    chatRoom {
+    chat {
       ...MinimalChat
     }
     message {

@@ -1,7 +1,7 @@
 import { ListItem, ListItemAvatar, Avatar, ListItemText, Typography, Theme } from '@mui/material';
 import { makeStyles, createStyles } from '@mui/styles';
 import { FC, useState } from 'react';
-import { MinimalChatFragment, useOnNewChatMessageSubscription, MessageFragment } from '../../generated/graphql';
+import { MinimalChatFragment, useOnNewMessageSubscription, MessageFragment } from '../../generated/graphql';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -17,13 +17,13 @@ export const ChatCard: FC<Props> = ({ chat }) => {
     const pathname = '/chats/[id]'
     const path = `/chats/${id}`;
     const query = { name: chatName };
-    useOnNewChatMessageSubscription({
-        variables: { chatRoom: id },
+    useOnNewMessageSubscription({
+        variables: { chat: id },
         fetchPolicy: 'network-only',
         onSubscriptionData: ({ subscriptionData }) => {
-            if (subscriptionData.data?.onNewChatMessage) {
-                setLastMessage(subscriptionData.data.onNewChatMessage.message);
-                console.log('new message entering', subscriptionData.data?.onNewChatMessage)
+            if (subscriptionData.data?.onNewMessage) {
+                setLastMessage(subscriptionData.data.onNewMessage.message);
+                console.log('new message entering', subscriptionData.data?.onNewMessage)
             }
         }
     })

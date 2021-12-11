@@ -12,7 +12,7 @@ export const InitialMessageList: FC<Props> = ({ messagesState }) => {
     const { user } = useUser()
     const router = useRouter()
     const id = router.query.id as string
-    const { data, loading, error } = useHistoryQuery({ variables: { chatRoom: id, filters: { page: 1, pageSize: 10 } } })
+    const { data, loading, error } = useHistoryQuery({ variables: { chat: id, filters: { page: 1, pageSize: 10 } } })
     const [messages, setMessages] = messagesState
 
     useEffect(() => {

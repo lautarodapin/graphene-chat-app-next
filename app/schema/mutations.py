@@ -9,8 +9,8 @@ from graphene_django.forms.mutation import DjangoModelFormMutation, DjangoFormMu
 from graphene_django.types import ErrorType
 from django.contrib.auth import login as django_login, logout as django_logout
 
-from app.models import ChatMessage, ChatRoom, User
-from app.schema.subscriptions import OnNewChatMessage
+from app.models import Message, Chat, User
+from app.schema.subscriptions import OnNewMessage
 from django.forms import ValidationError
 from django.contrib.auth.forms import (
     UserCreationForm as DjangoUserCreationForm,
@@ -18,7 +18,7 @@ from django.contrib.auth.forms import (
 )
 from .types import UserType
 import graphql_jwt
-from app.forms import JoinChatForm, SendChatMessageForm, UserCreationForm
+from app.forms import JoinChatForm, SendMessageForm, UserCreationForm
 from core.graphql import RequestMixin
 from graphql.execution.base import ResolveInfo
 class Register(DjangoModelFormMutation):
@@ -62,9 +62,9 @@ class Logout(graphene.Mutation):
         return Logout(ok=False)
 
 
-class SendChatMessage(RequestMixin, DjangoModelFormMutation):
+class SendMessage(RequestMixin, DjangoModelFormMutation):
     class Meta:
-        form_class = SendChatMessageForm
+        form_class = SendMessageForm
 
 
 class JoinChat(RequestMixin, DjangoFormMutation):
@@ -73,7 +73,7 @@ class JoinChat(RequestMixin, DjangoFormMutation):
 
 
 class Mutation(ObjectType):
-    send_chat_message = SendChatMessage.Field()
+    send_message = SendMessage.Field()
     login = Login.Field()
     logout = Logout.Field()
     register = Register.Field()

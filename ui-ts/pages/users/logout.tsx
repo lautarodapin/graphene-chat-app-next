@@ -15,7 +15,7 @@ const Logout: NextPage = () => {
             router.push({ pathname: "/users/login" })
         }
         logout()
-    }, [router])
+    }, [logout, router])
 
     return null
 };

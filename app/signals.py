@@ -1,14 +1,14 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import ChatMessage
-from .schema.subscriptions import OnNewChatMessage
+from .models import Message
+from .schema.subscriptions import OnNewMessage
 
-@receiver(post_save, sender=ChatMessage)
-def event_new_message(sender, instance, **kwargs):
+@receiver(post_save, sender=Message)
+def event_new_message(sender, instance: Message, **kwargs):
     if kwargs['created']:
-        OnNewChatMessage.new_chat_message(
-            chat_room=instance.chat,
+        OnNewMessage.new_message(
+            chat=instance.chat,
             message=instance,
             sender=instance.created_by,
         )

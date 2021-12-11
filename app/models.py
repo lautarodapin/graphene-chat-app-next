@@ -14,21 +14,21 @@ class TimeModel(models.Model):
 
 
 class User(AbstractUser):
-    active_rooms = models.ManyToManyField('ChatRoom', related_name='active_users', blank=True)
+    active_chats = models.ManyToManyField('Chat', related_name='active_users', blank=True)
 
     class Meta:
         ordering = ["username"]
 
 
-class ChatRoom(TimeModel, models.Model):
+class Chat(TimeModel, models.Model):
     chat_name = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         ordering = ["chat_name"]
 
 
-class ChatMessage(TimeModel, models.Model):
-    chat = models.ForeignKey(ChatRoom, related_name="messages", on_delete=models.CASCADE)
+class Message(TimeModel, models.Model):
+    chat = models.ForeignKey(Chat, related_name="messages", on_delete=models.CASCADE)
     message = models.TextField()
 
     class Meta:

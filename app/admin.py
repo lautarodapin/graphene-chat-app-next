@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ChatMessage, ChatRoom, User
+from .models import Message, Chat, User
 # Register your models here.
 
 @admin.register(User)
@@ -9,11 +9,11 @@ class UserAdmin(admin.ModelAdmin):
     def get_active_rooms(self, obj):
         return ', '.join(map(str, q.values_list('id', flat=True))) if (q:=obj.active_rooms.all()).exists() else '-'
 
-@admin.register(ChatRoom)
-class ChatRoomAdmin(admin.ModelAdmin):
+@admin.register(Chat)
+class ChatAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(ChatMessage)
-class ChatMessageAdmin(admin.ModelAdmin):
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
     list_display = ['id', 'message', 'chat', 'created_by', 'created_at']
     list_filter = ['chat']

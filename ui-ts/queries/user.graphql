@@ -13,7 +13,7 @@ fragment User on UserType {
   isStaff
   isActive
   dateJoined
-  activeRooms {
+  activeChats {
     id
   }
 }

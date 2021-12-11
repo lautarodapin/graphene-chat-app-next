@@ -4,29 +4,29 @@ import graphene
 from graphene.types.objecttype import ObjectType
 import channels_graphql_ws
 from graphene.types.scalars import Boolean
-from app.models import ChatMessage, ChatRoom, User
-from .types import ChatMessageType, ChatRoomType, UserType
+from app.models import Message, Chat, User
+from .types import MessageType, ChatType, UserType
 
-class OnNewChatMessage(channels_graphql_ws.Subscription):
+class OnNewMessage(channels_graphql_ws.Subscription):
     sender = Field(UserType, required=True)
-    chat_room = Field(ChatRoomType, required=True)
-    message = Field(ChatMessageType, required=True)
+    chat = Field(ChatType, required=True)
+    message = Field(MessageType, required=True)
 
     class Arguments:
-        chat_room = graphene.ID(required=True)
+        chat = graphene.ID(required=True)
 
-    def subscribe(self, info, chat_room=None):
-        chat_room_obj = ChatRoom.objects.only('id').get(id=chat_room)
-        return [str(chat_room_obj.id)]
+    def subscribe(self, info, chat=None):
+        chat_obj = Chat.objects.only('id').get(id=chat)
+        return [str(chat_obj.id)]
 
-    def unsubscribe(self, info, chat_room=None):
-        print('unsubscribed', chat_room, info.context.user)
+    def unsubscribe(self, info, chat=None):
+        print('unsubscribed', chat, info.context.user)
 
-    def publish(self, info, chat_room=None):
+    def publish(self, info, chat=None):
         """Called to prepare the subscription notification message."""
 
         # The `self` contains payload delivered from the `broadcast()`.
-        new_msg_chatroom = self["chat_room"]
+        new_msg_chat = self["chat"]
         new_msg_id = self["message"]
         new_msg_sender = self["sender"]
 
@@ -36,19 +36,19 @@ class OnNewChatMessage(channels_graphql_ws.Subscription):
         #     and new_msg_sender == info.context.user.username
         # ):
         #     return OnNewChatMessage.SKIP
-        message: ChatMessage = ChatMessage.objects.select_related('created_by', 'chat').get(id=new_msg_id)
-        return OnNewChatMessage(
-            chat_room=message.chat, message=message, sender=message.created_by
+        message: Message = Message.objects.select_related('created_by', 'chat').get(id=new_msg_id)
+        return OnNewMessage(
+            chat=message.chat, message=message, sender=message.created_by
         )
 
     @classmethod
-    def new_chat_message(cls, chat_room : ChatRoom, message : ChatMessage, sender : User):
+    def new_message(cls, chat : Chat, message : Message, sender : User):
         cls.broadcast(
-            group=str(chat_room.id),
-            payload={"chat_room": chat_room.id, "message": message.id, "sender": sender.username},
+            group=str(chat.id),
+            payload={"chat": chat.id, "message": message.id, "sender": sender.username},
         )
 
 
 class Subscription(ObjectType):
-    on_new_chat_message = OnNewChatMessage.Field()
+    on_new_message = OnNewMessage.Field()
 

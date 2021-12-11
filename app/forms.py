@@ -3,7 +3,7 @@ from django.contrib.auth.forms import (
     UsernameField,
 )
 from django.shortcuts import get_object_or_404
-from .models import ChatRoom, User, ChatMessage
+from .models import Chat, User, Message
 from django import forms
 from core.forms import TimestampModelForm, UserMixinForm
 
@@ -15,14 +15,14 @@ class UserCreationForm(DjangoUserCreationForm):
         field_classes = {'username': UsernameField}
 
 
-class SendChatMessageForm(TimestampModelForm):
+class SendMessageForm(TimestampModelForm):
     class Meta:
-        model = ChatMessage
+        model = Message
         fields = ['message', 'chat']
 
 
 class JoinChatForm(UserMixinForm, forms.Form):
-    chat_room = forms.CharField(required=True)
+    chat = forms.CharField(required=True)
     join = forms.BooleanField(required=False)
 
     def clean(self):
@@ -31,11 +31,11 @@ class JoinChatForm(UserMixinForm, forms.Form):
         return self.cleaned_data
 
     def save(self):
-        chat_room = self.cleaned_data.get('chat_room')
+        chat = self.cleaned_data.get('chat')
         join = self.cleaned_data.get('join')
-        chat: ChatRoom = get_object_or_404(ChatRoom, pk=chat_room)
+        chat: Chat = get_object_or_404(Chat, pk=chat)
         if join:
-            self.user.active_rooms.add(chat)
+            self.user.active_chats.add(chat)
         else:
-            self.user.active_rooms.remove(chat)
+            self.user.active_chats.remove(chat)
         return self.cleaned_data

@@ -4,25 +4,7 @@ schema {
   subscription: Subscription
 }
 
-type ChatMessageListType {
-  items: [ChatMessageType!]!
-  count: Int!
-  hasMore: Boolean!
-}
-
-type ChatMessageType implements PaginationType {
-  id: ID!
-  createdAt: DateTime!
-  createdBy: UserType
-  modAt: DateTime!
-  modBy: UserType
-  chat: ChatRoomType!
-  message: String!
-  count: Int
-  hasMore: Boolean
-}
-
-type ChatRoomType {
+type ChatType {
   id: ID!
   createdAt: DateTime!
   createdBy: UserType
@@ -30,8 +12,8 @@ type ChatRoomType {
   modBy: UserType
   chatName: String
   activeUsers: [UserType!]!
-  messages: [ChatMessageType!]!
-  lastMessage: ChatMessageType
+  messages: [MessageType!]!
+  lastMessage: MessageType
 }
 
 scalar DateTime
@@ -49,13 +31,13 @@ input FiltersInput {
 scalar GenericScalar
 
 input JoinChatInput {
-  chatRoom: String!
+  chat: String!
   join: Boolean
   clientMutationId: String
 }
 
 type JoinChatPayload {
-  chatRoom: String!
+  chat: String!
   join: Boolean
   errors: [ErrorType]
   clientMutationId: String
@@ -70,8 +52,26 @@ type Logout {
   ok: Boolean!
 }
 
+type MessageListType {
+  items: [MessageType!]!
+  count: Int!
+  hasMore: Boolean!
+}
+
+type MessageType implements PaginationType {
+  id: ID!
+  createdAt: DateTime!
+  createdBy: UserType
+  modAt: DateTime!
+  modBy: UserType
+  chat: ChatType!
+  message: String!
+  count: Int
+  hasMore: Boolean
+}
+
 type Mutation {
-  sendChatMessage(input: SendChatMessageInput!): SendChatMessagePayload
+  sendMessage(input: SendMessageInput!): SendMessagePayload
   login(password: String!, username: String!): Login
   logout: Logout
   register(input: RegisterInput!): RegisterPayload
@@ -85,10 +85,10 @@ type ObtainJSONWebToken {
   token: String
 }
 
-type OnNewChatMessage {
+type OnNewMessage {
   sender: UserType!
-  chatRoom: ChatRoomType!
-  message: ChatMessageType!
+  chat: ChatType!
+  message: MessageType!
 }
 
 interface PaginationType {
@@ -98,11 +98,11 @@ interface PaginationType {
 
 type Query {
   hello: String
-  history(chatRoom: ID!, filters: FiltersInput): ChatMessageListType
+  history(chat: ID!, filters: FiltersInput): MessageListType
   user: UserType
   users: [UserType!]
-  chat(id: ID!): ChatRoomType
-  chats: [ChatRoomType!]
+  chat(id: ID!): ChatType
+  chats: [ChatType!]
 }
 
 type Refresh {
@@ -124,21 +124,21 @@ type RegisterPayload {
   clientMutationId: String
 }
 
-input SendChatMessageInput {
+input SendMessageInput {
   message: String!
   chat: ID!
   id: ID
   clientMutationId: String
 }
 
-type SendChatMessagePayload {
-  chatMessage: ChatMessageType
+type SendMessagePayload {
+  message: MessageType
   errors: [ErrorType]
   clientMutationId: String
 }
 
 type Subscription {
-  onNewChatMessage(chatRoom: ID!): OnNewChatMessage
+  onNewMessage(chat: ID!): OnNewMessage
 }
 
 type UserType {
@@ -153,7 +153,7 @@ type UserType {
   isStaff: Boolean!
   isActive: Boolean!
   dateJoined: DateTime!
-  activeRooms: [ChatRoomType!]!
+  activeChats: [ChatType!]!
 }
 
 type Verify {
