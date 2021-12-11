@@ -6,14 +6,13 @@ import { Form } from '../forms/form'
 import { useSendChatMessageMutation, SendChatMessageInput } from '../../generated/graphql'
 import { useRouter } from 'next/router';
 
-type FormValues = SendChatMessageInput
+type FormValues = Pick<SendChatMessageInput, 'message'>
 
 export const ChatInput = () => {
     const router = useRouter()
     const chatRoomId = router.query.id as string
     const [sendMessage] = useSendChatMessageMutation()
     const defaultInitial: FormValues = {
-        chat: chatRoomId,
         message: '',
     }
 
@@ -25,7 +24,7 @@ export const ChatInput = () => {
             validateOnBlur={false}
             onSubmit={async (values, actions) => {
                 actions.setSubmitting(true)
-                await sendMessage({ variables: { input: values } })
+                await sendMessage({ variables: { input: { ...values, chat: chatRoomId } } })
                 console.log('enviado')
                 actions.resetForm()
                 actions.setSubmitting(false)
@@ -36,7 +35,7 @@ export const ChatInput = () => {
                 return errors
             }}
         >
-            {({ submitForm, isSubmitting }) => {
+            {({ submitForm, isSubmitting, values }) => {
                 return (
                     <Form>
                         <Grid item={true} xs={12}>
